@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { translations } from './translations';
 import * as Localization from 'expo-localization';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LanguageContext = createContext();
 
@@ -11,8 +12,21 @@ const getDeviceLanguage = () => {
 };
 
 export function LanguageProvider({ children }) {
-  const [language, setLanguage] = useState(getDeviceLanguage());
+  const [language, setLanguageState] = useState(getDeviceLanguage());
+
+  useEffect(() => {
+    AsyncStorage.getItem('tripmeet_language').then(lang => {
+      if (lang) setLanguageState(lang);
+    });
+  }, []);
+
+  const setLanguage = async (lang) => {
+    setLanguageState(lang);
+    await AsyncStorage.setItem('tripmeet_language', lang);
+  };
+
   const t = (key) => translations[language]?.[key] || translations['fr']?.[key] || key;
+
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}

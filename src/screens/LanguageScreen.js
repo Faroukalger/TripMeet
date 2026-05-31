@@ -6,9 +6,9 @@ import { useLanguage, LANGUAGES } from '../i18n/LanguageContext';
 export default function LanguageScreen({ navigation }) {
   const { language, setLanguage, t } = useLanguage();
 
-  const selectLanguage = (code) => {
-    setLanguage(code);
-    navigation.goBack();
+  const selectLanguage = async (code) => {
+    await setLanguage(code);
+    navigation.navigate('Hotel');
   };
 
   return (
@@ -25,7 +25,7 @@ export default function LanguageScreen({ navigation }) {
           <View style={{ width:34 }} />
         </View>
         <Text style={styles.headerTitle}>🌍 {t('selectLanguage')}</Text>
-        <Text style={styles.headerSub}>Choose your language · اختر لغتك · Wähle deine Sprache</Text>
+        <Text style={styles.headerSub}>Choose · اختر · Wählen · Choisir</Text>
         <View style={styles.headerWave} />
       </LinearGradient>
 
@@ -45,11 +45,18 @@ export default function LanguageScreen({ navigation }) {
             </View>
             {language === lang.code && (
               <LinearGradient colors={['#E8327A','#F07030']} style={styles.checkBadge}>
-                <Text style={{ color:'#fff', fontSize:12, fontWeight:'800' }}>✓</Text>
+                <Text style={{ color:'#fff', fontSize:14, fontWeight:'800' }}>✓</Text>
               </LinearGradient>
             )}
           </TouchableOpacity>
         ))}
+
+        <View style={styles.infoBanner}>
+          <Text>ℹ️</Text>
+          <Text style={styles.infoTxt}>
+            La langue sélectionnée sera mémorisée pour tes prochaines visites.
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -66,8 +73,10 @@ const styles = StyleSheet.create({
   headerWave: { position:'absolute', bottom:-1, left:0, right:0, height:14, backgroundColor:'#FDF9F4', borderRadius:999 },
   langCard: { backgroundColor:'#fff', borderRadius:16, borderWidth:1.5, borderColor:'#B5DCEA', padding:16, flexDirection:'row', alignItems:'center', gap:14, marginBottom:10 },
   langCardActive: { borderColor:'#2AABDC', backgroundColor:'#EAF7FD' },
-  langFlag: { fontSize:32 },
+  langFlag: { fontSize:36 },
   langName: { fontSize:16, fontWeight:'800', color:'#0D3547' },
   rtlBadge: { fontSize:10, color:'#5E9DB8', marginTop:2 },
-  checkBadge: { width:28, height:28, borderRadius:14, alignItems:'center', justifyContent:'center' },
+  checkBadge: { width:30, height:30, borderRadius:15, alignItems:'center', justifyContent:'center' },
+  infoBanner: { flexDirection:'row', gap:8, backgroundColor:'#EAF7FD', borderRadius:12, padding:12, borderWidth:1, borderColor:'#B5DCEA', marginTop:6, alignItems:'flex-start' },
+  infoTxt: { flex:1, fontSize:11, color:'#1A8BB8', lineHeight:17, fontWeight:'600' },
 });
