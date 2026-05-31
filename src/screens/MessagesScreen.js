@@ -1,37 +1,29 @@
-import { useLanguage } from '../i18n/LanguageContext';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const CONVERSATIONS = [
-  { id:1, name:'Emma',  age:27, bg:'#FFD4E8', dest:'✈️ Bali → Lisbonne',   msg:'Tu voyages seule aussi ? 🌍',      time:'2 min', unread:true,  online:true  },
-  { id:2, name:'Léa',   age:24, bg:'#D4EEF7', dest:'✈️ Paris → Tokyo',     msg:'On se croise à l\'aéroport ? 😄', time:'1 h',   unread:false, online:false },
-  { id:3, name:'Sofia', age:29, bg:'#D4FFD4', dest:'✈️ Madrid → NYC',      msg:'Super rencontre !',               time:'hier',  unread:false, online:true  },
-  { id:4, name:'Marc',  age:31, bg:'#FFE4D4', dest:'✈️ Lyon → Barcelone',  msg:'On dîne ce soir ? 🍕',            time:'hier',  unread:true,  online:false },
+  { id:1, name:'Emma',  age:27, bg:'#FFD4E8', dest:'✈️ Bali → Lisbonne',  msg:'Tu voyages seule aussi ? 🌍',      time:'2 min', unread:true,  online:true  },
+  { id:2, name:'Léa',   age:24, bg:'#D4EEF7', dest:'✈️ Paris → Tokyo',    msg:'On se croise à l\'aéroport ? 😄', time:'1 h',   unread:false, online:false },
+  { id:3, name:'Sofia', age:29, bg:'#D4FFD4', dest:'✈️ Madrid → NYC',     msg:'Super rencontre !',               time:'hier',  unread:false, online:true  },
+  { id:4, name:'Marc',  age:31, bg:'#FFE4D4', dest:'✈️ Lyon → Barcelone', msg:'On dîne ce soir ? 🍕',            time:'hier',  unread:true,  online:false },
 ];
 
 const NEW_MATCHES = [
-  { id:1, name:'Julie', bg:'#D4D4FF', dest:'→ Maroc',  online:false },
-  { id:2, name:'Alex',  bg:'#FFFFD4', dest:'→ Bali',   online:true  },
-  { id:3, name:'Nina',  bg:'#D4FFE8', dest:'→ Tokyo',  online:true  },
-  { id:4, name:'Lucas', bg:'#FFD4D4', dest:'→ NYC',    online:false },
+  { id:1, name:'Julie', bg:'#D4D4FF', dest:'→ Maroc', online:false },
+  { id:2, name:'Alex',  bg:'#FFFFD4', dest:'→ Bali',  online:true  },
+  { id:3, name:'Nina',  bg:'#D4FFE8', dest:'→ Tokyo', online:true  },
+  { id:4, name:'Lucas', bg:'#FFD4D4', dest:'→ NYC',   online:false },
 ];
 
 export default function MessagesScreen({ navigation }) {
   const { t } = useLanguage();
+
   return (
     <SafeAreaView style={{ flex:1, backgroundColor:'#fff' }}>
-
-      {/* Header avec photo 002 */}
-      <ImageBackground
-        source={require('../../assets/002.png')}
-        style={styles.headerBg}
-        resizeMode="cover"
-      >
-        <LinearGradient
-          colors={['rgba(232,50,122,0.82)','rgba(240,112,48,0.82)']}
-          style={styles.headerOverlay}
-        >
+      <ImageBackground source={require('../../assets/002.png')} style={styles.headerBg} resizeMode="cover">
+        <LinearGradient colors={['rgba(232,50,122,0.82)','rgba(240,112,48,0.82)']} style={styles.headerOverlay}>
           <View style={styles.headerTop}>
             <View style={styles.logoRow}>
               <View style={styles.logoRing}><Text style={{ fontSize:11 }}>✈️</Text></View>
@@ -39,14 +31,13 @@ export default function MessagesScreen({ navigation }) {
             </View>
             <Text style={{ fontSize:20 }}>🔔</Text>
           </View>
-          <Text style={styles.headerTitle}>{t('myMatches')}</Text>
-          <Text style={styles.headerSub}>3 voyageurs t'ont liké aujourd'hui !</Text>
+          <Text style={styles.headerTitle}>💬 {t('myMatches')}</Text>
+          <Text style={styles.headerSub}>3 {t('matchesToday')}</Text>
           <View style={styles.headerWave} />
         </LinearGradient>
       </ImageBackground>
 
       <ScrollView style={{ flex:1 }}>
-        {/* Nouveaux matchs */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingHorizontal:14, paddingVertical:12 }}>
           <View style={{ flexDirection:'row', gap:12 }}>
             {NEW_MATCHES.map(m => (
@@ -62,14 +53,10 @@ export default function MessagesScreen({ navigation }) {
           </View>
         </ScrollView>
 
-        <Text style={styles.convTitle}>{t('conversations')}</Text>
+        <Text style={styles.convTitle}>{t('conversations').toUpperCase()}</Text>
 
         {CONVERSATIONS.map(conv => (
-          <TouchableOpacity
-            key={conv.id}
-            style={styles.convItem}
-            onPress={() => navigation.navigate('Chat', { conversationId:'demo', otherUser: conv })}
-          >
+          <TouchableOpacity key={conv.id} style={styles.convItem} onPress={() => navigation.navigate('Chat', { conversationId:'demo', otherUser: conv })}>
             <View style={{ position:'relative' }}>
               <View style={[styles.convAv, { backgroundColor:conv.bg }]}>
                 <Text style={{ fontSize:18 }}>🙂</Text>
@@ -90,7 +77,7 @@ export default function MessagesScreen({ navigation }) {
       </ScrollView>
 
       <View style={styles.bottomNav}>
-        {[['🏨','Hôtel','Hotel'],['💬','Messages','Messages'],['🌍','Explorer','Map'],['👤','Profil','Profile']].map(([icon, label, screen]) => (
+        {[['🏨',t('hotel'),'Hotel'],['💬',t('messages'),'Messages'],['🌍',t('explorer'),'Map'],['👤',t('profile'),'Profile']].map(([icon, label, screen]) => (
           <TouchableOpacity key={screen} style={styles.navItem} onPress={() => navigation.navigate(screen)}>
             <Text style={styles.navIcon}>{icon}</Text>
             <Text style={[styles.navLabel, screen === 'Messages' && { color:'#2AABDC' }]}>{label}</Text>

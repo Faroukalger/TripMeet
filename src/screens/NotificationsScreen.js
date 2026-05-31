@@ -1,39 +1,34 @@
-import { useLanguage } from '../i18n/LanguageContext';
 import React, { useState } from 'react';
-import {
-  View, Text, StyleSheet, SafeAreaView, ScrollView,
-  TouchableOpacity, Switch
-} from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Switch } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-
-const NOTIF_SETTINGS = [
-  { id:'match',    icon:'💫', title:'Nouveaux matchs',    desc:'Quand quelqu\'un aime ton profil',  default:true  },
-  { id:'message',  icon:'💬', title:'Nouveaux messages',  desc:'Quand tu reçois un message',        default:true  },
-  { id:'solo',     icon:'🏨', title:'Solos à proximité', desc:'Nouveaux voyageurs dans ton hôtel', default:true  },
-  { id:'checkout', icon:'✈️', title:'Rappel check-out',  desc:'Rappel la veille de ton départ',    default:true  },
-  { id:'promo',    icon:'⚡', title:'Offres & boosts',   desc:'Promotions et offres spéciales',    default:false },
-];
+import { useLanguage } from '../i18n/LanguageContext';
 
 const HISTORY = [
-  { id:1, icon:'💫', title:'Nouveau match !',       body:'Emma a aimé ton profil',          time:'Il y a 2 min', read:false },
-  { id:2, icon:'💬', title:'Message de Léa',        body:'On se croise à l\'aéroport ? 😄', time:'Il y a 1 h',   read:false },
-  { id:3, icon:'🏨', title:'3 solos à ton hôtel',  body:'Mercure Toulouse · 3 nouveaux',   time:'Il y a 3 h',   read:true  },
-  { id:4, icon:'✈️', title:'Rappel check-out',     body:'Départ demain de Mercure',        time:'Hier',         read:true  },
-  { id:5, icon:'💫', title:'Nouveau match !',       body:'Sofia a aimé ton profil',         time:'Il y a 2 j',   read:true  },
+  { id:1, icon:'💫', title:'Nouveau match !',      body:'Emma a aimé ton profil',          time:'Il y a 2 min', read:false },
+  { id:2, icon:'💬', title:'Message de Léa',       body:'On se croise à l\'aéroport ? 😄', time:'Il y a 1 h',   read:false },
+  { id:3, icon:'🏨', title:'3 solos à ton hôtel', body:'Mercure Toulouse · 3 nouveaux',   time:'Il y a 3 h',   read:true  },
+  { id:4, icon:'✈️', title:'Rappel check-out',    body:'Départ demain de Mercure',        time:'Hier',         read:true  },
+  { id:5, icon:'💫', title:'Nouveau match !',      body:'Sofia a aimé ton profil',         time:'Il y a 2 j',   read:true  },
 ];
 
 export default function NotificationsScreen({ navigation }) {
   const { t } = useLanguage();
-  const [settings, setSettings] = useState(
-    Object.fromEntries(NOTIF_SETTINGS.map(n => [n.id, n.default]))
-  );
-  const [history, setHistory] = useState(HISTORY);
+
+  const NOTIF_SETTINGS = [
+    { id:'match',    icon:'💫', title:t('myMatches'),    desc:'Quand quelqu\'un aime ton profil',  default:true  },
+    { id:'message',  icon:'💬', title:t('messages'),     desc:'Quand tu reçois un message',        default:true  },
+    { id:'solo',     icon:'🏨', title:t('inMyHotel'),    desc:'Nouveaux voyageurs dans ton hôtel', default:true  },
+    { id:'checkout', icon:'✈️', title:'Rappel check-out',desc:'Rappel la veille de ton départ',    default:true  },
+    { id:'promo',    icon:'⚡', title:'Offres & boosts', desc:'Promotions et offres spéciales',    default:false },
+  ];
+
+  const [settings, setSettings] = useState(Object.fromEntries(NOTIF_SETTINGS.map(n => [n.id, n.default])));
+  const [history,  setHistory]  = useState(HISTORY);
 
   const toggleSetting = (id) => setSettings(prev => ({ ...prev, [id]: !prev[id] }));
   const markAllRead   = () => setHistory(prev => prev.map(n => ({ ...n, read:true })));
   const markOneRead   = (id) => setHistory(prev => prev.map(n => n.id === id ? {...n, read:true} : n));
-
-  const unreadCount = history.filter(n => !n.read).length;
+  const unreadCount   = history.filter(n => !n.read).length;
 
   return (
     <SafeAreaView style={{ flex:1, backgroundColor:'#FDF9F4' }}>
@@ -48,47 +43,36 @@ export default function NotificationsScreen({ navigation }) {
           </View>
           <View style={{ width:34 }} />
         </View>
-        <Text style={styles.headerTitle}>{t('notifications')}</Text>
+        <Text style={styles.headerTitle}>🔔 {t('notifications')}</Text>
         <Text style={styles.headerSub}>
-          {unreadCount > 0 ? `${unreadCount} non lue${unreadCount > 1 ? 's' : ''}` : 'Tout est lu ✓'}
+          {unreadCount > 0 ? `${unreadCount} ${t('unread')}` : t('allRead')}
         </Text>
         <View style={styles.headerWave} />
       </LinearGradient>
 
       <ScrollView contentContainerStyle={{ padding:14, paddingBottom:40 }}>
-
-        {/* Statut */}
         <View style={styles.grantedCard}>
           <Text style={{ fontSize:24 }}>✅</Text>
           <View style={{ flex:1 }}>
-            <Text style={styles.grantedTitle}>Notifications activées</Text>
+            <Text style={styles.grantedTitle}>{t('notifications')} activées</Text>
             <Text style={styles.grantedSub}>Tu recevras toutes les alertes TripMeet</Text>
           </View>
         </View>
 
-        {/* Préférences */}
         <Text style={styles.sectionTitle}>{t('preferences')}</Text>
         <View style={styles.settingsCard}>
           {NOTIF_SETTINGS.map((notif, i) => (
             <View key={notif.id} style={[styles.settingRow, i < NOTIF_SETTINGS.length-1 && styles.settingBorder]}>
-              <View style={styles.settingIcon}>
-                <Text style={{ fontSize:20 }}>{notif.icon}</Text>
-              </View>
+              <View style={styles.settingIcon}><Text style={{ fontSize:20 }}>{notif.icon}</Text></View>
               <View style={{ flex:1 }}>
                 <Text style={styles.settingTitle}>{notif.title}</Text>
                 <Text style={styles.settingDesc}>{notif.desc}</Text>
               </View>
-              <Switch
-                value={settings[notif.id]}
-                onValueChange={() => toggleSetting(notif.id)}
-                trackColor={{ false:'#ccc', true:'#E8327A' }}
-                thumbColor="#fff"
-              />
+              <Switch value={settings[notif.id]} onValueChange={() => toggleSetting(notif.id)} trackColor={{ false:'#ccc', true:'#E8327A' }} thumbColor="#fff" />
             </View>
           ))}
         </View>
 
-        {/* {t('history')} */}
         <View style={styles.histHeader}>
           <Text style={styles.sectionTitle}>{t('history')}</Text>
           {unreadCount > 0 && (
@@ -100,11 +84,7 @@ export default function NotificationsScreen({ navigation }) {
 
         <View style={styles.histCard}>
           {history.map((notif, i) => (
-            <TouchableOpacity
-              key={notif.id}
-              style={[styles.histRow, !notif.read && styles.histRowUnread, i < history.length-1 && styles.histBorder]}
-              onPress={() => markOneRead(notif.id)}
-            >
+            <TouchableOpacity key={notif.id} style={[styles.histRow, !notif.read && styles.histRowUnread, i < history.length-1 && styles.histBorder]} onPress={() => markOneRead(notif.id)}>
               <View style={[styles.histIcon, !notif.read && styles.histIconUnread]}>
                 <Text style={{ fontSize:18 }}>{notif.icon}</Text>
               </View>
@@ -117,7 +97,6 @@ export default function NotificationsScreen({ navigation }) {
             </TouchableOpacity>
           ))}
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );

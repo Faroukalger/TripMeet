@@ -1,4 +1,3 @@
-import { useLanguage } from '../i18n/LanguageContext';
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView, ScrollView,
@@ -6,79 +5,45 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
+import { useLanguage } from '../i18n/LanguageContext';
 
-const RADIUS_OPTIONS = [
-  { label: 'Mon hôtel', value: 0 },
-  { label: '500 m',     value: 500 },
-  { label: '1 km',      value: 1000 },
-  { label: '5 km',      value: 5000 },
-];
-
-// Hôtels mockés avec coordonnées réelles (Toulouse)
 const MOCK_HOTELS = [
-  { id:1, name:'Mercure Toulouse Centre Wilson', stars:4, lat:43.6047, lng:1.4442, solos:4,  dist:0,   here:true  },
-  { id:2, name:'Novotel Toulouse Wilson',        stars:4, lat:43.6063, lng:1.4445, solos:3,  dist:280, here:false },
-  { id:3, name:"Grand Hôtel de l'Opéra",         stars:5, lat:43.6038, lng:1.4458, solos:2,  dist:420, here:false },
-  { id:4, name:'Ibis Toulouse Centre',           stars:3, lat:43.6071, lng:1.4432, solos:4,  dist:380, here:false },
-  { id:5, name:'Crowne Plaza Toulouse',          stars:5, lat:43.6029, lng:1.4468, solos:2,  dist:490, here:false },
-  { id:6, name:'Hôtel des Beaux-Arts',           stars:4, lat:43.6011, lng:1.4440, solos:3,  dist:850, here:false },
-  { id:7, name:'Pullman Toulouse',               stars:5, lat:43.5998, lng:1.4421, solos:5,  dist:1200,here:false },
+  { id:1, name:'Mercure Toulouse Centre Wilson', stars:4, lat:43.6047, lng:1.4442, solos:4,  realDist:0,   here:true  },
+  { id:2, name:'Novotel Toulouse Wilson',        stars:4, lat:43.6063, lng:1.4445, solos:3,  realDist:280, here:false },
+  { id:3, name:"Grand Hôtel de l'Opéra",         stars:5, lat:43.6038, lng:1.4458, solos:2,  realDist:420, here:false },
+  { id:4, name:'Ibis Toulouse Centre',           stars:3, lat:43.6071, lng:1.4432, solos:4,  realDist:380, here:false },
+  { id:5, name:'Crowne Plaza Toulouse',          stars:5, lat:43.6029, lng:1.4468, solos:2,  realDist:490, here:false },
 ];
-
-const getDistance = (lat1, lng1, lat2, lng2) => {
-  const R = 6371e3;
-  const φ1 = lat1 * Math.PI/180;
-  const φ2 = lat2 * Math.PI/180;
-  const Δφ = (lat2-lat1) * Math.PI/180;
-  const Δλ = (lng2-lng1) * Math.PI/180;
-  const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
-  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-};
 
 const formatDist = (d) => d === 0 ? 'Ici' : d < 1000 ? `${d} m` : `${(d/1000).toFixed(1)} km`;
 
 export default function NearbyScreen({ navigation }) {
   const { t } = useLanguage();
-  const [location,  setLocation]  = useState(null);
-  const [loading,   setLoading]   = useState(false);
-  const [error,     setError]     = useState('');
-  const [radius,    setRadius]    = useState(500);
-  const [hotels,    setHotels]    = useState([]);
-  const [locGranted,setLocGranted]= useState(false);
+  const [loading,    setLoading]    = useState(false);
+  const [radius,     setRadius]     = useState(500);
+  const [hotels,     setHotels]     = useState(MOCK_HOTELS);
+  const [locGranted, setLocGranted] = useState(false);
+  const [error,      setError]      = useState('');
+
+  const RADIUS_OPTIONS = [
+    { label: t('hotel'), value: 0 },
+    { label: '500 m',    value: 500 },
+    { label: '1 km',     value: 1000 },
+    { label: '5 km',     value: 5000 },
+  ];
 
   useEffect(() => { requestLocation(); }, []);
 
   const requestLocation = async () => {
     setLoading(true);
-    setError('');
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setError('Permission de localisation refusée. Active-la dans les paramètres.');
-        setLoading(false);
-        // Utilise position par défaut (Toulouse)
-        loadHotels({ coords: { latitude: 43.6047, longitude: 1.4442 } });
-        return;
-      }
-      setLocGranted(true);
-      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-      setLocation(loc);
-      loadHotels(loc);
-    } catch (e) {
-      setError('Impossible d\'obtenir ta position. Utilisation de la position par défaut.');
-      loadHotels({ coords: { latitude: 43.6047, longitude: 1.4442 } });
+      setLocGranted(status === 'granted');
+    } catch(e) {
+      setError('Position approximative utilisée.');
     } finally {
       setLoading(false);
     }
-  };
-
-  const loadHotels = (loc) => {
-    const { latitude, longitude } = loc.coords;
-    const withDist = MOCK_HOTELS.map(h => ({
-      ...h,
-      realDist: h.here ? 0 : getDistance(latitude, longitude, h.lat, h.lng),
-    })).sort((a, b) => a.realDist - b.realDist);
-    setHotels(withDist);
   };
 
   const filteredHotels = radius === 0
@@ -88,24 +53,21 @@ export default function NearbyScreen({ navigation }) {
   const totalSolos = filteredHotels.reduce((acc, h) => acc + h.solos, 0);
 
   const openMaps = (hotel) => {
-    const url = `https://www.google.com/maps/search/?api=1&query=${hotel.lat},${hotel.lng}`;
-    Linking.openURL(url);
+    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${hotel.lat},${hotel.lng}`);
   };
 
   return (
     <SafeAreaView style={{ flex:1, backgroundColor:'#FDF9F4' }}>
-
-      {/* Header */}
       <LinearGradient colors={['#E8327A','#F07030']} style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Text style={{ color:'#fff', fontSize:22 }}>‹</Text>
           </TouchableOpacity>
-          <View style={{ flexDirection:'row', alignItems:'center', gap:6 }}>
+          <View style={styles.logoRow}>
             <View style={styles.logoRing}><Text style={{ fontSize:11 }}>✈️</Text></View>
             <Text style={styles.logoTxt}>TripMeet</Text>
           </View>
-          <TouchableOpacity onPress={requestLocation} style={styles.refreshBtn}>
+          <TouchableOpacity onPress={requestLocation} style={styles.backBtn}>
             <Text style={{ fontSize:18 }}>🔄</Text>
           </TouchableOpacity>
         </View>
@@ -116,7 +78,6 @@ export default function NearbyScreen({ navigation }) {
         <View style={styles.headerWave} />
       </LinearGradient>
 
-      {/* Rayon */}
       <View style={styles.radiusRow}>
         <Text style={styles.radiusLbl}>{t('searchRadius')}</Text>
         <View style={styles.radiusBtns}>
@@ -134,15 +95,14 @@ export default function NearbyScreen({ navigation }) {
         </View>
       </View>
 
-      {/* Stats rapides */}
       <View style={styles.statsBar}>
         <View style={styles.statBox}>
           <Text style={styles.statNum}>{filteredHotels.length}</Text>
-          <Text style={styles.statLbl}>Hôtels</Text>
+          <Text style={styles.statLbl}>{t('hotel')}s</Text>
         </View>
         <View style={[styles.statBox, { borderColor:'#FFD4CE' }]}>
           <Text style={[styles.statNum, { color:'#E8327A' }]}>{totalSolos}</Text>
-          <Text style={styles.statLbl}>Solos</Text>
+          <Text style={styles.statLbl}>{t('solos')}</Text>
         </View>
         <View style={[styles.statBox, { borderColor:'#C0E8C0' }]}>
           <Text style={[styles.statNum, { color:'#2ECC71' }]}>
@@ -155,17 +115,13 @@ export default function NearbyScreen({ navigation }) {
       {loading ? (
         <View style={{ flex:1, alignItems:'center', justifyContent:'center', gap:12 }}>
           <ActivityIndicator size="large" color="#E8327A" />
-          <Text style={{ color:'#5E9DB8', fontWeight:'600' }}>Recherche des hôtels proches...</Text>
+          <Text style={{ color:'#5E9DB8', fontWeight:'600' }}>Recherche en cours...</Text>
         </View>
       ) : (
-        <ScrollView style={{ flex:1 }} contentContainerStyle={{ padding:13, paddingBottom:80 }}>
-
+        <ScrollView contentContainerStyle={{ padding:13, paddingBottom:80 }}>
           {error ? (
             <View style={styles.errorBanner}>
               <Text style={styles.errorTxt}>⚠️ {error}</Text>
-              <TouchableOpacity onPress={() => Linking.openSettings()}>
-                <Text style={styles.errorLink}>Ouvrir les paramètres →</Text>
-              </TouchableOpacity>
             </View>
           ) : null}
 
@@ -188,7 +144,7 @@ export default function NearbyScreen({ navigation }) {
                   </View>
                   {hotel.here ? (
                     <LinearGradient colors={['#E8327A','#F07030']} style={styles.distBadge}>
-                      <Text style={styles.distBadgeTxt}>Je suis ici</Text>
+                      <Text style={styles.distBadgeTxt}>{t('iAmHere')}</Text>
                     </LinearGradient>
                   ) : (
                     <View style={styles.distBadgeBlue}>
@@ -197,7 +153,6 @@ export default function NearbyScreen({ navigation }) {
                   )}
                 </View>
 
-                {/* Solos */}
                 <View style={styles.solosRow}>
                   <View style={styles.solosAvatars}>
                     {Array(Math.min(hotel.solos, 4)).fill(0).map((_, i) => (
@@ -206,19 +161,16 @@ export default function NearbyScreen({ navigation }) {
                       </View>
                     ))}
                   </View>
-                  <Text style={styles.solosCount}>
-                    {hotel.solos} voyageur{hotel.solos > 1 ? 's' : ''} solo
-                  </Text>
+                  <Text style={styles.solosCount}>{hotel.solos} {t('solos')}</Text>
                 </View>
 
-                {/* Actions */}
                 <View style={styles.hotelActions}>
                   <TouchableOpacity style={styles.mapBtn} onPress={() => openMaps(hotel)}>
                     <Text style={styles.mapBtnTxt}>🗺️ Voir sur Maps</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => navigation.navigate('Hotel')}>
                     <LinearGradient colors={['#E8327A','#F07030']} style={styles.solosBtn}>
-                      <Text style={styles.solosBtnTxt}>Voir les solos →</Text>
+                      <Text style={styles.solosBtnTxt}>{t('solos')} →</Text>
                     </LinearGradient>
                   </TouchableOpacity>
                 </View>
@@ -228,9 +180,8 @@ export default function NearbyScreen({ navigation }) {
         </ScrollView>
       )}
 
-      {/* Bottom Nav */}
       <View style={styles.bottomNav}>
-        {[['🏨','Hôtel','Hotel'],['💬','Messages','Messages'],['🌍','Explorer','Map'],['👤','Profil','Profile']].map(([icon, label, screen]) => (
+        {[['🏨',t('hotel'),'Hotel'],['💬',t('messages'),'Messages'],['🌍',t('explorer'),'Map'],['👤',t('profile'),'Profile']].map(([icon, label, screen]) => (
           <TouchableOpacity key={screen} style={styles.navItem} onPress={() => navigation.navigate(screen)}>
             <Text style={styles.navIcon}>{icon}</Text>
             <Text style={styles.navLabel}>{label}</Text>
@@ -245,9 +196,9 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal:16, paddingTop:50, paddingBottom:20, position:'relative' },
   headerTop: { flexDirection:'row', alignItems:'center', justifyContent:'space-between', marginBottom:10 },
   backBtn: { width:34, height:34, borderRadius:17, backgroundColor:'rgba(255,255,255,0.2)', alignItems:'center', justifyContent:'center' },
+  logoRow: { flexDirection:'row', alignItems:'center', gap:6 },
   logoRing: { width:24, height:24, borderRadius:12, backgroundColor:'rgba(255,255,255,0.3)', alignItems:'center', justifyContent:'center' },
   logoTxt: { color:'#fff', fontSize:16, fontWeight:'900' },
-  refreshBtn: { width:34, height:34, borderRadius:17, backgroundColor:'rgba(255,255,255,0.2)', alignItems:'center', justifyContent:'center' },
   headerTitle: { color:'#fff', fontSize:20, fontWeight:'900' },
   headerSub: { color:'rgba(255,255,255,0.75)', fontSize:11, marginTop:2 },
   headerWave: { position:'absolute', bottom:-1, left:0, right:0, height:14, backgroundColor:'#FDF9F4', borderRadius:999 },
@@ -263,8 +214,7 @@ const styles = StyleSheet.create({
   statNum: { fontSize:20, fontWeight:'900', color:'#1A8BB8' },
   statLbl: { fontSize:9, color:'#5E9DB8', fontWeight:'700', marginTop:1 },
   errorBanner: { backgroundColor:'#FFF0EE', borderRadius:12, padding:12, marginBottom:12, borderWidth:1, borderColor:'#FFD4CE' },
-  errorTxt: { fontSize:12, color:'#E8327A', fontWeight:'600', marginBottom:4 },
-  errorLink: { fontSize:11, color:'#2AABDC', fontWeight:'700' },
+  errorTxt: { fontSize:12, color:'#E8327A', fontWeight:'600' },
   emptyState: { alignItems:'center', paddingTop:60, gap:10 },
   emptyTitle: { fontSize:18, fontWeight:'900', color:'#0D3547' },
   emptySub: { fontSize:13, color:'#5E9DB8' },
@@ -273,7 +223,7 @@ const styles = StyleSheet.create({
   hotelTop: { flexDirection:'row', alignItems:'center', gap:10, marginBottom:10 },
   hotelIconWrap: { width:42, height:42, borderRadius:12, backgroundColor:'#FDF9F4', alignItems:'center', justifyContent:'center', borderWidth:1, borderColor:'#B5DCEA' },
   hotelName: { fontSize:13, fontWeight:'900', color:'#0D3547', flex:1 },
-  hotelStars: { fontSize:10, color:'#C9A84C', marginTop:2 },
+  hotelStars: { fontSize:10, color:'#C9A84C' },
   distBadge: { borderRadius:20, paddingHorizontal:10, paddingVertical:4 },
   distBadgeTxt: { fontSize:9, fontWeight:'800', color:'#fff' },
   distBadgeBlue: { backgroundColor:'#D6F0FA', borderRadius:20, paddingHorizontal:10, paddingVertical:4, borderWidth:1, borderColor:'#B5DCEA' },
