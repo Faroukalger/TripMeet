@@ -223,6 +223,9 @@ export default function ProfileScreen({ navigation }) {
           </LinearGradient>
 
           {/* Déconnexion */}
+          <TouchableOpacity style={styles.langBtn} onPress={() => navigation.navigate('Language')}>
+            <Text style={styles.langBtnTxt}>🌍 Changer la langue</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
             <Text style={styles.logoutTxt}>🚪 Se déconnecter</Text>
           </TouchableOpacity>
@@ -288,6 +291,8 @@ const styles = StyleSheet.create({
   boostSub: { fontSize:10, color:'rgba(255,255,255,0.75)', marginTop:2 },
   boostBtn: { backgroundColor:'#fff', borderRadius:20, paddingHorizontal:14, paddingVertical:7 },
   boostBtnTxt: { fontSize:11, fontWeight:'800', color:'#1A8BB8' },
+  langBtn: { alignItems:'center', paddingVertical:14, borderRadius:14, borderWidth:1.5, borderColor:'#B5DCEA', backgroundColor:'#EAF7FD', marginBottom:8 },
+  langBtnTxt: { fontSize:13, fontWeight:'700', color:'#2AABDC' },
   logoutBtn: { alignItems:'center', paddingVertical:14, borderRadius:14, borderWidth:1.5, borderColor:'#FFD4CE', backgroundColor:'#FFF0EE', marginBottom:8 },
   logoutTxt: { fontSize:13, fontWeight:'700', color:'#E8327A' },
   bottomNav: { flexDirection:'row', justifyContent:'space-around', alignItems:'center', paddingVertical:10, borderTopWidth:1, borderTopColor:'#B5DCEA', backgroundColor:'#fff', position:'absolute', bottom:0, left:0, right:0 },

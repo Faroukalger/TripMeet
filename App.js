@@ -1,9 +1,10 @@
-// ============================================================
-//  TripMeet — Point d'entrée de l'application
-// ============================================================
-import React from 'react';
+import { LanguageProvider } from './src/i18n/LanguageContext';
 import Navigation from './src/navigation';
 
 export default function App() {
-  return <Navigation />;
+  return (
+    <LanguageProvider>
+      <Navigation />
+    </LanguageProvider>
+  );
 }
