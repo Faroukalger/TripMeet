@@ -15,6 +15,8 @@ import MapScreen           from '../screens/MapScreen';
 import ProfileScreen       from '../screens/ProfileScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
 import LanguageScreen      from '../screens/LanguageScreen';
+import SecurityScreen      from '../screens/SecurityScreen';
+import AdminScreen         from '../screens/AdminScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +37,8 @@ export default function Navigation() {
         <Stack.Screen name="Profile"       component={ProfileScreen}       />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
         <Stack.Screen name="Language"      component={LanguageScreen}      />
+        <Stack.Screen name="Security"      component={SecurityScreen}      />
+        <Stack.Screen name="Admin"         component={AdminScreen}         />
       </Stack.Navigator>
     </NavigationContainer>
   );

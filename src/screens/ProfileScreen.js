@@ -1,71 +1,102 @@
-import { useLanguage } from '../i18n/LanguageContext';
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../lib/supabase';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function ProfileScreen({ navigation }) {
   const { t } = useLanguage();
-  const [user,     setUser]     = useState(null);
-  const [profile,  setProfile]  = useState(null);
-  const [stay,     setStay]     = useState(null);
-  const [loading,  setLoading]  = useState(true);
-  const [interests, setInterests] = useState([]);
+  const [user,       setUser]       = useState(null);
+  const [profile,    setProfile]    = useState(null);
+  const [stay,       setStay]       = useState(null);
+  const [loading,    setLoading]    = useState(true);
+  const [uploading,  setUploading]  = useState(false);
+  const [avatarUrl,  setAvatarUrl]  = useState(null);
+  const [interests,  setInterests]  = useState([]);
 
   useEffect(() => { loadProfile(); }, []);
 
   const loadProfile = async () => {
     try {
       setLoading(true);
-
-      // 1. Utilisateur connecté
       const { data: { user: authUser } } = await supabase.auth.getUser();
       setUser(authUser);
+      if (!authUser) { navigation.navigate('Login'); return; }
 
-      if (!authUser) {
-        navigation.navigate('Login');
-        return;
-      }
-
-      // 2. Profil depuis Supabase
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', authUser.id)
-        .single();
-
+      const { data: profileData } = await supabase.from('profiles').select('*').eq('id', authUser.id).single();
       setProfile(profileData);
-
       if (profileData?.styles_voyage) {
-        setInterests(profileData.styles_voyage.map(s => ({ label: s, active: true })));
+        setInterests(profileData.styles_voyage.map(s => ({ label:s, active:true })));
       }
+      if (profileData?.avatar_url) setAvatarUrl(profileData.avatar_url);
 
-      // 3. Séjour hôtel actif
-      const { data: stayData } = await supabase
-        .from('stays')
-        .select('*')
-        .eq('user_id', authUser.id)
-        .eq('is_active', true)
-        .single();
-
+      const { data: stayData } = await supabase.from('stays').select('*').eq('user_id', authUser.id).eq('is_active', true).single();
       setStay(stayData);
-
-    } catch (e) {
+    } catch(e) {
       console.log('Erreur profil:', e);
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleInterest = (index) => {
-    setInterests(prev => prev.map((item, i) =>
-      i === index ? { ...item, active: !item.active } : item
-    ));
+  const pickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Permission d\'accès à la galerie refusée !');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        await uploadAvatar(result.assets[0]);
+      }
+    } catch(e) {
+      console.log('Erreur sélection image:', e);
+    }
+  };
+
+  const uploadAvatar = async (image) => {
+    try {
+      setUploading(true);
+      const ext = image.uri.split('.').pop() || 'jpg';
+      const fileName = `${user.id}/avatar.${ext}`;
+
+      const response = await fetch(image.uri);
+      const blob = await response.blob();
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, blob, { upsert: true, contentType: `image/${ext}` });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
+      setAvatarUrl(publicUrl);
+
+      await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', user.id);
+      alert('Photo de profil mise à jour ! 🎉');
+    } catch(e) {
+      console.log('Erreur upload:', e);
+      alert('Erreur lors de l\'upload. Réessaie.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigation.navigate('Splash');
+  };
+
+  const toggleInterest = (index) => {
+    setInterests(prev => prev.map((item, i) => i === index ? { ...item, active: !item.active } : item));
   };
 
   const formatDate = (dateStr) => {
@@ -75,14 +106,13 @@ export default function ProfileScreen({ navigation }) {
 
   const getAge = (dateStr) => {
     if (!dateStr) return '';
-    const diff = Date.now() - new Date(dateStr).getTime();
-    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+    return Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000*60*60*24*365));
   };
 
   if (loading) return (
     <View style={{ flex:1, alignItems:'center', justifyContent:'center', backgroundColor:'#FDF9F4' }}>
       <ActivityIndicator size="large" color="#E8327A" />
-      <Text style={{ color:'#5E9DB8', marginTop:12, fontWeight:'600' }}>Chargement du profil...</Text>
+      <Text style={{ color:'#5E9DB8', marginTop:12, fontWeight:'600' }}>Chargement...</Text>
     </View>
   );
 
@@ -102,37 +132,50 @@ export default function ProfileScreen({ navigation }) {
           <View style={styles.heroDeco1} />
           <View style={styles.heroDeco2} />
           <View style={styles.avatarWrap}>
-            <LinearGradient colors={['#E8327A','#F07030']} style={styles.avatarRing}>
-              <View style={styles.avatar}>
-                <Text style={{ fontSize:32 }}>🙂</Text>
+            <TouchableOpacity onPress={pickImage} disabled={uploading}>
+              {avatarUrl ? (
+                <Image source={{ uri: avatarUrl }} style={styles.avatarImg} />
+              ) : (
+                <LinearGradient colors={['#E8327A','#F07030']} style={styles.avatarRing}>
+                  <View style={styles.avatar}>
+                    <Text style={{ fontSize:32 }}>🙂</Text>
+                  </View>
+                </LinearGradient>
+              )}
+              <View style={styles.editBtn}>
+                {uploading
+                  ? <ActivityIndicator size="small" color="#fff" />
+                  : <Text style={{ fontSize:12, color:'#fff' }}>✎</Text>
+                }
               </View>
-            </LinearGradient>
-            <TouchableOpacity style={styles.editBtn}>
-              <Text style={{ fontSize:12, color:'#fff' }}>✎</Text>
             </TouchableOpacity>
           </View>
         </LinearGradient>
 
         <View style={{ padding:16, paddingTop:44 }}>
 
-          {/* Nom réel depuis Supabase */}
+          {/* Upload hint */}
+          <TouchableOpacity onPress={pickImage} style={styles.uploadHint} disabled={uploading}>
+            <Text style={styles.uploadHintTxt}>
+              {uploading ? '⏳ Upload en cours...' : '📷 Appuie sur ta photo pour la changer'}
+            </Text>
+          </TouchableOpacity>
+
           <Text style={styles.profileName}>{prenom} {nom}</Text>
           {age ? <Text style={styles.profileAge}>{age} ans</Text> : null}
           <Text style={styles.profileLoc}>
-            {ville && pays ? `📍 ${ville}, ${pays}` : ville ? `📍 ${ville}` : pays ? `📍 ${pays}` : '📍 Localisation non renseignée'}
+            {ville && pays ? `📍 ${ville}, ${pays}` : ville ? `📍 ${ville}` : pays ? `📍 ${pays}` : '📍 Non renseigné'}
           </Text>
-
-          {/* Email */}
           <Text style={styles.profileEmail}>✉️ {user?.email}</Text>
 
-          {/* Hôtel actif depuis Supabase */}
+          {/* Hôtel */}
           {stay ? (
             <View style={styles.hotelCard}>
               <View style={styles.hotelCardTop}>
                 <Text style={{ fontSize:22 }}>🏨</Text>
                 <View style={{ flex:1 }}>
                   <Text style={styles.hotelCardName}>{stay.hotel_nom}</Text>
-                  <Text style={styles.hotelCardStars}>{'★'.repeat(stay.hotel_etoiles || 4)} · Chambre {stay.chambre || 'N/A'}</Text>
+                  <Text style={styles.hotelCardStars}>{'★'.repeat(stay.hotel_etoiles || 4)}</Text>
                   <Text style={styles.hotelCardDates}>📅 {formatDate(stay.checkin)} → {formatDate(stay.checkout)}</Text>
                 </View>
                 <View style={styles.hotelBadge}>
@@ -142,17 +185,13 @@ export default function ProfileScreen({ navigation }) {
             </View>
           ) : (
             <TouchableOpacity style={styles.addHotelBtn} onPress={() => navigation.navigate('CheckIn')}>
-              <Text style={styles.addHotelTxt}>🏨 Ajouter mon hôtel actuel</Text>
+              <Text style={styles.addHotelTxt}>🏨 {t('hotelCheckin')}</Text>
             </TouchableOpacity>
           )}
 
           {/* Stats */}
           <View style={styles.statsRow}>
-            {[
-              ['0',  'Pays'],
-              ['0',  'Matchs'],
-              [profile ? '80%' : '40%', 'Profil'],
-            ].map(([val, lbl]) => (
+            {[['0',t('countries')],['0',t('matches')],[profile ? '80%' : '40%','Profil']].map(([val, lbl]) => (
               <View key={lbl} style={styles.statItem}>
                 <Text style={styles.statVal}>{val}</Text>
                 <Text style={styles.statLbl}>{lbl}</Text>
@@ -163,15 +202,13 @@ export default function ProfileScreen({ navigation }) {
           {/* Bio */}
           <Text style={styles.sectionTitle}>{t('myBio')}</Text>
           <View style={styles.bioCard}>
-            <Text style={styles.bioTxt}>
-              {bio || '✏️ Ajoute une bio pour te présenter aux autres voyageurs !'}
-            </Text>
+            <Text style={styles.bioTxt}>{bio || '✏️ Ajoute une bio !'}</Text>
             <TouchableOpacity style={styles.editBioBtn}>
               <Text style={styles.editBioTxt}>✎ Modifier</Text>
             </TouchableOpacity>
           </View>
 
-          {/* {t('travelStyleTitle')} */}
+          {/* Styles de voyage */}
           {interests.length > 0 && (
             <>
               <Text style={styles.sectionTitle}>{t('travelStyleTitle')}</Text>
@@ -201,7 +238,7 @@ export default function ProfileScreen({ navigation }) {
               <Text style={styles.accountVal}>{user?.email}</Text>
             </View>
             <View style={styles.accountRow}>
-              <Text style={styles.accountLbl}>✅ Email vérifié</Text>
+              <Text style={styles.accountLbl}>✅ Vérifié</Text>
               <Text style={[styles.accountVal, { color: user?.email_confirmed_at ? '#2ECC71' : '#E8327A' }]}>
                 {user?.email_confirmed_at ? 'Oui ✓' : 'Non ✗'}
               </Text>
@@ -217,17 +254,19 @@ export default function ProfileScreen({ navigation }) {
             <Text style={{ fontSize:24 }}>✈️</Text>
             <View style={{ flex:1 }}>
               <Text style={styles.boostTitle}>{t('boostProfile')}</Text>
-              <Text style={styles.boostSub}>Visible dans 5 nouvelles destinations</Text>
+              <Text style={styles.boostSub}>{t('boostSub')}</Text>
             </View>
             <TouchableOpacity style={styles.boostBtn}>
-              <Text style={styles.boostBtnTxt}>Activer</Text>
+              <Text style={styles.boostBtnTxt}>{t('activate')}</Text>
             </TouchableOpacity>
           </LinearGradient>
 
-          {/* Déconnexion */}
+          {/* Langue */}
           <TouchableOpacity style={styles.langBtn} onPress={() => navigation.navigate('Language')}>
-            <Text style={styles.langBtnTxt}>🌍 {t('language')}</Text>
+            <Text style={styles.langBtnTxt}>🌍 {t('selectLanguage')}</Text>
           </TouchableOpacity>
+
+          {/* Déconnexion */}
           <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
             <Text style={styles.logoutTxt}>🚪 {t('logout')}</Text>
           </TouchableOpacity>
@@ -235,10 +274,9 @@ export default function ProfileScreen({ navigation }) {
         </View>
       </ScrollView>
 
-      {/* Bottom Nav */}
       <View style={styles.bottomNav}>
-        {[['🏨','Hôtel','Hotel'],['💬','Messages','Messages'],['🌍','Explorer','Map'],['👤','Profil','Profile']].map(([icon, label, screen]) => (
-          <TouchableOpacity key={screen} style={styles.navItem} onPress={() => screen !== 'Profile' && navigation.navigate(screen)}>
+        {[['🏨',t('hotel'),'Hotel'],['💬',t('messages'),'Messages'],['🌍',t('explorer'),'Map'],['👤',t('profile'),'Profile']].map(([icon, label, screen]) => (
+          <TouchableOpacity key={screen} style={styles.navItem} onPress={() => navigation.navigate(screen)}>
             <Text style={styles.navIcon}>{icon}</Text>
             <Text style={[styles.navLabel, screen === 'Profile' && { color:'#2AABDC' }]}>{label}</Text>
             {screen === 'Profile' && <View style={styles.navDot} />}
@@ -256,7 +294,10 @@ const styles = StyleSheet.create({
   avatarWrap: { position:'absolute', bottom:-36, left:'50%', marginLeft:-36 },
   avatarRing: { width:72, height:72, borderRadius:36, padding:3 },
   avatar: { flex:1, borderRadius:33, backgroundColor:'#D6F0FA', alignItems:'center', justifyContent:'center', borderWidth:3, borderColor:'#fff' },
+  avatarImg: { width:72, height:72, borderRadius:36, borderWidth:3, borderColor:'#fff' },
   editBtn: { position:'absolute', bottom:0, right:0, width:22, height:22, borderRadius:11, backgroundColor:'#2AABDC', alignItems:'center', justifyContent:'center', borderWidth:2, borderColor:'#fff' },
+  uploadHint: { alignItems:'center', marginBottom:6 },
+  uploadHintTxt: { fontSize:11, color:'#5E9DB8', fontWeight:'600' },
   profileName: { fontSize:22, fontWeight:'900', color:'#0D3547', textAlign:'center' },
   profileAge: { fontSize:13, color:'#5E9DB8', textAlign:'center', marginTop:2, fontWeight:'600' },
   profileLoc: { fontSize:12, color:'#2AABDC', textAlign:'center', marginTop:3, fontWeight:'700' },
