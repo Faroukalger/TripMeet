@@ -1,9 +1,11 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { supabase } from '../lib/supabase';
 
 export default function ProfileScreen({ navigation }) {
+  const { t } = useLanguage();
   const [user,     setUser]     = useState(null);
   const [profile,  setProfile]  = useState(null);
   const [stay,     setStay]     = useState(null);
@@ -159,7 +161,7 @@ export default function ProfileScreen({ navigation }) {
           </View>
 
           {/* Bio */}
-          <Text style={styles.sectionTitle}>Ma bio</Text>
+          <Text style={styles.sectionTitle}>{t('myBio')}</Text>
           <View style={styles.bioCard}>
             <Text style={styles.bioTxt}>
               {bio || '✏️ Ajoute une bio pour te présenter aux autres voyageurs !'}
@@ -169,10 +171,10 @@ export default function ProfileScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          {/* Style de voyage */}
+          {/* {t('travelStyleTitle')} */}
           {interests.length > 0 && (
             <>
-              <Text style={styles.sectionTitle}>Style de voyage</Text>
+              <Text style={styles.sectionTitle}>{t('travelStyleTitle')}</Text>
               <View style={styles.interestsGrid}>
                 {interests.map((item, i) => (
                   <TouchableOpacity key={i} onPress={() => toggleInterest(i)}>
@@ -214,7 +216,7 @@ export default function ProfileScreen({ navigation }) {
           <LinearGradient colors={['#1A8BB8','#2AABDC']} style={styles.boostCard}>
             <Text style={{ fontSize:24 }}>✈️</Text>
             <View style={{ flex:1 }}>
-              <Text style={styles.boostTitle}>Booster mon profil</Text>
+              <Text style={styles.boostTitle}>{t('boostProfile')}</Text>
               <Text style={styles.boostSub}>Visible dans 5 nouvelles destinations</Text>
             </View>
             <TouchableOpacity style={styles.boostBtn}>
@@ -224,10 +226,10 @@ export default function ProfileScreen({ navigation }) {
 
           {/* Déconnexion */}
           <TouchableOpacity style={styles.langBtn} onPress={() => navigation.navigate('Language')}>
-            <Text style={styles.langBtnTxt}>🌍 Changer la langue</Text>
+            <Text style={styles.langBtnTxt}>🌍 {t('language')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <Text style={styles.logoutTxt}>🚪 Se déconnecter</Text>
+            <Text style={styles.logoutTxt}>🚪 {t('logout')}</Text>
           </TouchableOpacity>
 
         </View>

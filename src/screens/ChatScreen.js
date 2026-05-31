@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView, ScrollView,
@@ -7,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { supabase } from '../lib/supabase';
 
 export default function ChatScreen({ navigation, route }) {
+  const { t } = useLanguage();
   const { conversationId, otherUser } = route.params || {
     conversationId: 'demo',
     otherUser: { prenom:'Emma', nom:'', bg:'#FFD4E8', dest:'✈️ Bali → Lisbonne', online:true }
@@ -237,7 +239,7 @@ export default function ChatScreen({ navigation, route }) {
             style={styles.input}
             value={newMsg}
             onChangeText={setNewMsg}
-            placeholder="Un message..."
+            placeholder={t('typeMessage')}
             placeholderTextColor="#ccc"
             multiline
             onSubmitEditing={sendMessage}

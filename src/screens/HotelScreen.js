@@ -1,33 +1,27 @@
 import React, { useState } from 'react';
-import {
-  View, Text, StyleSheet, SafeAreaView, ScrollView,
-  TouchableOpacity, ImageBackground
-} from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLanguage } from '../i18n/LanguageContext';
 
 const MY_HOTEL = {
-  name:  'Mercure Toulouse Centre Wilson',
-  stars: 4,
-  solos: [
-    { id:1, name:'Emma',  age:27, compat:96, online:true,  bg:'#FFD4E8', flag:'🇫🇷', dest:'→ Lisbonne' },
-    { id:2, name:'Léa',   age:24, compat:88, online:true,  bg:'#D4EEF7', flag:'🇧🇪', dest:'→ Tokyo'    },
-    { id:3, name:'Marc',  age:31, compat:74, online:false, bg:'#D4FFD4', flag:'🇩🇪', dest:'→ Barcelone'},
-    { id:4, name:'Julie', age:26, compat:71, online:false, bg:'#FFE4D4', flag:'🇨🇭', dest:'→ Maroc'    },
+  name:'Mercure Toulouse Centre Wilson', stars:4,
+  solos:[
+    { id:1, name:'Emma',  age:27, compat:96, online:true,  bg:'#FFD4E8', dest:'→ Lisbonne' },
+    { id:2, name:'Léa',   age:24, compat:88, online:true,  bg:'#D4EEF7', dest:'→ Tokyo'    },
+    { id:3, name:'Marc',  age:31, compat:74, online:false, bg:'#D4FFD4', dest:'→ Barcelone' },
+    { id:4, name:'Julie', age:26, compat:71, online:false, bg:'#FFE4D4', dest:'→ Maroc'    },
   ],
 };
 
 const NEARBY_HOTELS = [
-  {
-    id:1, name:'Novotel Toulouse Wilson', stars:4, dist:'280 m', icon:'🏩',
+  { id:1, name:'Novotel Toulouse Wilson', stars:4, dist:'280 m', icon:'🏩',
     solos:[
-      { id:5, name:'Sofia',  age:29, compat:91, online:true,  bg:'#D4D4FF' },
-      { id:6, name:'Lucas',  age:33, compat:82, online:false, bg:'#FFD4D4' },
-      { id:7, name:'Nina',   age:25, compat:77, online:false, bg:'#D4FFE8' },
+      { id:5, name:'Sofia', age:29, compat:91, online:true,  bg:'#D4D4FF' },
+      { id:6, name:'Lucas', age:33, compat:82, online:false, bg:'#FFD4D4' },
+      { id:7, name:'Nina',  age:25, compat:77, online:false, bg:'#D4FFE8' },
     ],
   },
-  {
-    id:2, name:"Grand Hôtel de l'Opéra", stars:5, dist:'420 m', icon:'🏛',
+  { id:2, name:"Grand Hôtel de l'Opéra", stars:5, dist:'420 m', icon:'🏛',
     solos:[
       { id:8, name:'Alex',  age:38, compat:79, online:false, bg:'#FFFFD4' },
       { id:9, name:'Marie', age:30, compat:75, online:true,  bg:'#FFD4F8' },
@@ -35,7 +29,7 @@ const NEARBY_HOTELS = [
   },
 ];
 
-const RADIUS_OPTIONS = [t('hotel'), '500 m', '1 km', '5 km'];
+const RADIUS_OPTIONS = ['Mon hôtel', '500 m', '1 km', '5 km'];
 
 export default function HotelScreen({ navigation }) {
   const { t } = useLanguage();
@@ -44,17 +38,8 @@ export default function HotelScreen({ navigation }) {
   return (
     <View style={{ flex:1, backgroundColor:'#FDF9F4' }}>
       <SafeAreaView style={{ flex:1 }}>
-
-        {/* Header avec photo 003 */}
-        <ImageBackground
-          source={require('../../assets/003.png')}
-          style={styles.headerBg}
-          resizeMode="cover"
-        >
-          <LinearGradient
-            colors={['rgba(232,50,122,0.80)','rgba(240,112,48,0.80)']}
-            style={styles.headerOverlay}
-          >
+        <ImageBackground source={require('../../assets/003.png')} style={styles.headerBg} resizeMode="cover">
+          <LinearGradient colors={['rgba(232,50,122,0.80)','rgba(240,112,48,0.80)']} style={styles.headerOverlay}>
             <View style={styles.headerTop}>
               <View style={styles.logoRow}>
                 <View style={styles.logoRing}><Text style={{ fontSize:11 }}>✈️</Text></View>
@@ -69,7 +54,6 @@ export default function HotelScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
             </View>
-
             <TouchableOpacity style={styles.checkinBar} onPress={() => navigation.navigate('CheckIn')}>
               <Text style={{ fontSize:20 }}>🏨</Text>
               <View style={{ flex:1 }}>
@@ -78,23 +62,18 @@ export default function HotelScreen({ navigation }) {
                 <Text style={styles.checkinRoom}>Check-in · 12–17 août</Text>
               </View>
               <View style={styles.checkinBadge}>
-                <Text style={styles.checkinBadgeTxt}>✓ Vérifié</Text>
+                <Text style={styles.checkinBadgeTxt}>{t('verified')}</Text>
               </View>
             </TouchableOpacity>
           </LinearGradient>
         </ImageBackground>
 
         <ScrollView style={{ flex:1 }} showsVerticalScrollIndicator={false}>
-          {/* Rayon */}
           <View style={styles.radiusRow}>
-            <Text style={styles.radiusLbl}>📍 Rayon de recherche</Text>
+            <Text style={styles.radiusLbl}>📍 {t('searchRadius')}</Text>
             <View style={styles.radiusBtns}>
               {RADIUS_OPTIONS.map(opt => (
-                <TouchableOpacity
-                  key={opt}
-                  style={[styles.radiusBtn, radius === opt && styles.radiusBtnActive]}
-                  onPress={() => setRadius(opt)}
-                >
+                <TouchableOpacity key={opt} style={[styles.radiusBtn, radius === opt && styles.radiusBtnActive]} onPress={() => setRadius(opt)}>
                   <Text style={[styles.radiusBtnTxt, radius === opt && styles.radiusBtnTxtActive]}>{opt}</Text>
                 </TouchableOpacity>
               ))}
@@ -102,18 +81,17 @@ export default function HotelScreen({ navigation }) {
           </View>
 
           <View style={{ paddingHorizontal:13 }}>
-            {/* Mon hôtel */}
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>🏨 {t('inMyHotel')}</Text>
-              <Text style={styles.sectionCount}>{MY_HOTEL.solos.length} solos</Text>
+              <Text style={styles.sectionCount}>{MY_HOTEL.solos.length} {t('solos')}</Text>
             </View>
             <HotelBlock hotel={MY_HOTEL} type="here" onPressTraveler={(s) => navigation.navigate('Chat', { conversationId:'demo', otherUser:s })} />
 
             {radius !== 'Mon hôtel' && (
               <>
                 <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>📍 À {radius}</Text>
-                  <Text style={styles.sectionCount}>{NEARBY_HOTELS.reduce((acc, h) => acc + h.solos.length, 0)} solos</Text>
+                  <Text style={styles.sectionTitle}>📍 {t('nearby')} · {radius}</Text>
+                  <Text style={styles.sectionCount}>{NEARBY_HOTELS.reduce((acc, h) => acc + h.solos.length, 0)} {t('solos')}</Text>
                 </View>
                 {NEARBY_HOTELS.map(h => (
                   <HotelBlock key={h.id} hotel={h} type="near" onPressTraveler={(s) => navigation.navigate('Chat', { conversationId:'demo', otherUser:s })} />
@@ -123,8 +101,7 @@ export default function HotelScreen({ navigation }) {
             <View style={{ height:80 }} />
           </View>
         </ScrollView>
-
-        <BottomNav navigation={navigation} active="hotel" />
+        <BottomNav navigation={navigation} active="hotel" t={t} />
       </SafeAreaView>
     </View>
   );
@@ -135,7 +112,7 @@ function HotelBlock({ hotel, type, onPressTraveler }) {
     <View style={styles.hotelBlock}>
       <View style={styles.hotelBlockHeader}>
         <View style={styles.hotelNameRow}>
-          <Text style={{ fontSize:type === 'here' ? 18 : 16 }}>{hotel.icon || '🏨'}</Text>
+          <Text style={{ fontSize: type === 'here' ? 18 : 16 }}>{hotel.icon || '🏨'}</Text>
           <View>
             <Text style={styles.hotelName}>{hotel.name}</Text>
             <Text style={styles.hotelStars}>{'★'.repeat(hotel.stars)}{hotel.dist ? ` · ${hotel.dist}` : ''}</Text>
@@ -186,20 +163,20 @@ function TravelerCard({ traveler, onPress }) {
   );
 }
 
-function BottomNav({ navigation, active }) {
+function BottomNav({ navigation, active, t }) {
   const tabs = [
-    { key:'hotel',   icon:'🏨', label:'Hôtel',    screen:'Hotel'    },
-    { key:'chat',    icon:'💬', label:'Messages',  screen:'Messages' },
-    { key:'map',     icon:'🌍', label:'Explorer',  screen:'Map'      },
-    { key:'profile', icon:'👤', label:'Profil',    screen:'Profile'  },
+    { key:'hotel',   icon:'🏨', label: t('hotel'),    screen:'Hotel'    },
+    { key:'chat',    icon:'💬', label: t('messages'),  screen:'Messages' },
+    { key:'map',     icon:'🌍', label: t('explorer'),  screen:'Map'      },
+    { key:'profile', icon:'👤', label: t('profile'),   screen:'Profile'  },
   ];
   return (
     <View style={styles.bottomNav}>
-      {tabs.map(t => (
-        <TouchableOpacity key={t.key} style={styles.navItem} onPress={() => navigation.navigate(t.screen)}>
-          <Text style={styles.navIcon}>{t.icon}</Text>
-          <Text style={[styles.navLabel, active === t.key && { color:'#2AABDC' }]}>{t.label}</Text>
-          {active === t.key && <View style={styles.navDot} />}
+      {tabs.map(tab => (
+        <TouchableOpacity key={tab.key} style={styles.navItem} onPress={() => navigation.navigate(tab.screen)}>
+          <Text style={styles.navIcon}>{tab.icon}</Text>
+          <Text style={[styles.navLabel, active === tab.key && { color:'#2AABDC' }]}>{tab.label}</Text>
+          {active === tab.key && <View style={styles.navDot} />}
         </TouchableOpacity>
       ))}
     </View>

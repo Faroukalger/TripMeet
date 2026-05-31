@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView, ScrollView,
@@ -37,6 +38,7 @@ const getDistance = (lat1, lng1, lat2, lng2) => {
 const formatDist = (d) => d === 0 ? 'Ici' : d < 1000 ? `${d} m` : `${(d/1000).toFixed(1)} km`;
 
 export default function NearbyScreen({ navigation }) {
+  const { t } = useLanguage();
   const [location,  setLocation]  = useState(null);
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState('');
@@ -107,7 +109,7 @@ export default function NearbyScreen({ navigation }) {
             <Text style={{ fontSize:18 }}>🔄</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.headerTitle}>📍 Hôtels proches</Text>
+        <Text style={styles.headerTitle}>📍 {t('nearby')}</Text>
         <Text style={styles.headerSub}>
           {locGranted ? '🟢 Géolocalisation active' : '🔴 Position approximative'}
         </Text>
@@ -116,7 +118,7 @@ export default function NearbyScreen({ navigation }) {
 
       {/* Rayon */}
       <View style={styles.radiusRow}>
-        <Text style={styles.radiusLbl}>Rayon de recherche</Text>
+        <Text style={styles.radiusLbl}>{t('searchRadius')}</Text>
         <View style={styles.radiusBtns}>
           {RADIUS_OPTIONS.map(opt => (
             <TouchableOpacity

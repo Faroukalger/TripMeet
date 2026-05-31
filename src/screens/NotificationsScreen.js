@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView, ScrollView,
@@ -22,6 +23,7 @@ const HISTORY = [
 ];
 
 export default function NotificationsScreen({ navigation }) {
+  const { t } = useLanguage();
   const [settings, setSettings] = useState(
     Object.fromEntries(NOTIF_SETTINGS.map(n => [n.id, n.default]))
   );
@@ -46,7 +48,7 @@ export default function NotificationsScreen({ navigation }) {
           </View>
           <View style={{ width:34 }} />
         </View>
-        <Text style={styles.headerTitle}>🔔 Notifications</Text>
+        <Text style={styles.headerTitle}>{t('notifications')}</Text>
         <Text style={styles.headerSub}>
           {unreadCount > 0 ? `${unreadCount} non lue${unreadCount > 1 ? 's' : ''}` : 'Tout est lu ✓'}
         </Text>
@@ -65,7 +67,7 @@ export default function NotificationsScreen({ navigation }) {
         </View>
 
         {/* Préférences */}
-        <Text style={styles.sectionTitle}>Mes préférences</Text>
+        <Text style={styles.sectionTitle}>{t('preferences')}</Text>
         <View style={styles.settingsCard}>
           {NOTIF_SETTINGS.map((notif, i) => (
             <View key={notif.id} style={[styles.settingRow, i < NOTIF_SETTINGS.length-1 && styles.settingBorder]}>
@@ -86,12 +88,12 @@ export default function NotificationsScreen({ navigation }) {
           ))}
         </View>
 
-        {/* Historique */}
+        {/* {t('history')} */}
         <View style={styles.histHeader}>
-          <Text style={styles.sectionTitle}>Historique</Text>
+          <Text style={styles.sectionTitle}>{t('history')}</Text>
           {unreadCount > 0 && (
             <TouchableOpacity onPress={markAllRead}>
-              <Text style={styles.markReadTxt}>Tout marquer lu</Text>
+              <Text style={styles.markReadTxt}>{t('markAllRead')}</Text>
             </TouchableOpacity>
           )}
         </View>

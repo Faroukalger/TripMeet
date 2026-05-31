@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,6 +18,7 @@ const NEW_MATCHES = [
 ];
 
 export default function MessagesScreen({ navigation }) {
+  const { t } = useLanguage();
   return (
     <SafeAreaView style={{ flex:1, backgroundColor:'#fff' }}>
 
@@ -37,7 +39,7 @@ export default function MessagesScreen({ navigation }) {
             </View>
             <Text style={{ fontSize:20 }}>🔔</Text>
           </View>
-          <Text style={styles.headerTitle}>💬 Mes Matchs</Text>
+          <Text style={styles.headerTitle}>{t('myMatches')}</Text>
           <Text style={styles.headerSub}>3 voyageurs t'ont liké aujourd'hui !</Text>
           <View style={styles.headerWave} />
         </LinearGradient>
@@ -60,7 +62,7 @@ export default function MessagesScreen({ navigation }) {
           </View>
         </ScrollView>
 
-        <Text style={styles.convTitle}>CONVERSATIONS</Text>
+        <Text style={styles.convTitle}>{t('conversations')}</Text>
 
         {CONVERSATIONS.map(conv => (
           <TouchableOpacity

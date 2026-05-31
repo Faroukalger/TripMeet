@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,6 +8,7 @@ const STEP_MANUAL = 'manual';
 const STEP_CONFIRM = 'confirm';
 
 export default function CheckInScreen({ navigation }) {
+  const { t } = useLanguage();
   const [step, setStep] = useState(STEP_SCAN);
   const [resaNumber, setResaNumber] = useState('');
 
@@ -16,7 +18,7 @@ export default function CheckInScreen({ navigation }) {
         <View style={styles.successRing}>
           <Text style={{ fontSize: 32 }}>✓</Text>
         </View>
-        <Text style={styles.successTitle}>Check-in confirmé ! 🎉</Text>
+        <Text style={styles.successTitle}>{t('checkinConfirmed')}</Text>
         <Text style={styles.successSub}>Tu es connecté à ton hôtel.{'\n'}Découvre les voyageurs solo près de toi.</Text>
         <View style={styles.confCard}>
           <Text style={styles.confHotelName}>Mercure Toulouse Centre Wilson</Text>
@@ -29,7 +31,7 @@ export default function CheckInScreen({ navigation }) {
         </LinearGradient>
         <TouchableOpacity onPress={() => navigation.navigate('Hotel')}>
           <LinearGradient colors={['#E8327A','#F07030']} style={styles.btn}>
-            <Text style={styles.btnTxt}>🌍 Explorer les voyageurs solo</Text>
+            <Text style={styles.btnTxt}>🌍 {t('exploreSolos')}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </ScrollView>
@@ -56,7 +58,7 @@ export default function CheckInScreen({ navigation }) {
         <TextInput style={styles.input} placeholder="17 août 2025" placeholderTextColor="#ccc" />
         <TouchableOpacity onPress={() => setStep(STEP_CONFIRM)}>
           <LinearGradient colors={['#E8327A','#F07030']} style={styles.btn}>
-            <Text style={styles.btnTxt}>🏨 Valider le check-in</Text>
+            <Text style={styles.btnTxt}>🏨 {t('validateCheckin')}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </ScrollView>
@@ -69,7 +71,7 @@ export default function CheckInScreen({ navigation }) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={{ color: '#fff', fontSize: 20 }}>‹</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Check-in hôtel 🏨</Text>
+        <Text style={styles.headerTitle}>{t('hotelCheckin')} 🏨</Text>
         <Text style={styles.headerSub}>Connecte-toi à ton hôtel</Text>
       </LinearGradient>
       <ScrollView style={{ padding: 16 }}>
@@ -84,7 +86,7 @@ export default function CheckInScreen({ navigation }) {
         <TouchableOpacity onPress={() => setStep(STEP_CONFIRM)}>
           <View style={styles.qrZone}>
             <Text style={{ fontSize: 60 }}>📷</Text>
-            <Text style={{ color: '#fff', marginTop: 12, fontWeight: 'bold' }}>Appuie pour simuler un scan</Text>
+            <Text style={{ color: '#fff', marginTop: 12, fontWeight: 'bold' }}>{t('scanInstruction')}</Text>
           </View>
         </TouchableOpacity>
         <View style={styles.orRow}>

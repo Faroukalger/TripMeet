@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const DESTINATIONS = [
   { id:1, flag:'🇹🇭', name:'Bangkok',   country:'Thaïlande',  period:'Août 2025',      count:17, rank:'#1', badge:'Trending',  badgeColor:'#E8327A' },
@@ -11,25 +12,17 @@ const DESTINATIONS = [
   { id:6, flag:'🇺🇸', name:'New York',  country:'États-Unis', period:'Sept–Nov',       count:6,  rank:'#6', badge:'Trending',  badgeColor:'#E8327A' },
 ];
 
-const TABS = ['🌍 Carte', '✈️ Mes trips', '🔥 Tendances'];
-
 export default function MapScreen({ navigation }) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState(2);
   const [selected,  setSelected]  = useState(null);
 
+  const TABS = [t('map'), t('myTrips'), t('trending')];
+
   return (
     <SafeAreaView style={{ flex:1, backgroundColor:'#FDF9F4' }}>
-
-      {/* Header avec photo 004 */}
-      <ImageBackground
-        source={require('../../assets/004.jpg')}
-        style={styles.headerBg}
-        resizeMode="cover"
-      >
-        <LinearGradient
-          colors={['rgba(232,50,122,0.80)','rgba(240,112,48,0.80)']}
-          style={styles.headerOverlay}
-        >
+      <ImageBackground source={require('../../assets/004.jpg')} style={styles.headerBg} resizeMode="cover">
+        <LinearGradient colors={['rgba(232,50,122,0.80)','rgba(240,112,48,0.80)']} style={styles.headerOverlay}>
           <View style={styles.headerTop}>
             <View style={styles.logoRow}>
               <View style={styles.logoRing}><Text style={{ fontSize:11 }}>✈️</Text></View>
@@ -39,14 +32,13 @@ export default function MapScreen({ navigation }) {
           </View>
           <View style={styles.searchBar}>
             <Text style={{ fontSize:14, color:'#B5DCEA' }}>🔍</Text>
-            <Text style={{ flex:1, color:'#ccc', fontSize:13 }}>Cherche une destination…</Text>
-            <Text style={{ color:'#fff', fontWeight:'800', fontSize:12 }}>Filtres</Text>
+            <Text style={{ flex:1, color:'#ccc', fontSize:13 }}>{t('searchDestination')}</Text>
+            <Text style={{ color:'#fff', fontWeight:'800', fontSize:12 }}>{t('filters')}</Text>
           </View>
           <View style={styles.headerWave} />
         </LinearGradient>
       </ImageBackground>
 
-      {/* Tabs */}
       <View style={styles.tabs}>
         {TABS.map((tab, i) => (
           <TouchableOpacity key={i} style={[styles.tab, activeTab === i && styles.tabActive]} onPress={() => setActiveTab(i)}>
@@ -55,25 +47,23 @@ export default function MapScreen({ navigation }) {
         ))}
       </View>
 
-      {/* Carte */}
       {activeTab === 0 && (
         <View style={styles.mapPlaceholder}>
           <Text style={{ fontSize:60 }}>🗺️</Text>
-          <Text style={styles.mapTitle}>Carte interactive</Text>
+          <Text style={styles.mapTitle}>{t('map')}</Text>
           <Text style={styles.mapSub}>Disponible avec Google Maps API</Text>
           <TouchableOpacity onPress={() => setActiveTab(2)}>
             <LinearGradient colors={['#E8327A','#F07030']} style={styles.mapBtn}>
-              <Text style={styles.mapBtnTxt}>Voir les tendances →</Text>
+              <Text style={styles.mapBtnTxt}>{t('trending')} →</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
       )}
 
-      {/* Mes trips */}
       {activeTab === 1 && (
         <View style={styles.mapPlaceholder}>
           <Text style={{ fontSize:60 }}>✈️</Text>
-          <Text style={styles.mapTitle}>Mes voyages</Text>
+          <Text style={styles.mapTitle}>{t('myTrips')}</Text>
           <Text style={styles.mapSub}>Tes destinations enregistrées</Text>
           <TouchableOpacity onPress={() => navigation.navigate('CheckIn')}>
             <LinearGradient colors={['#E8327A','#F07030']} style={styles.mapBtn}>
@@ -83,10 +73,9 @@ export default function MapScreen({ navigation }) {
         </View>
       )}
 
-      {/* Tendances */}
       {activeTab === 2 && (
         <ScrollView style={{ flex:1 }} contentContainerStyle={{ padding:14, paddingBottom:80 }}>
-          <Text style={styles.sectionTitle}>🔥 Destinations populaires</Text>
+          <Text style={styles.sectionTitle}>🔥 {t('popularDest')}</Text>
           {DESTINATIONS.map(dest => (
             <TouchableOpacity
               key={dest.id}
@@ -107,7 +96,7 @@ export default function MapScreen({ navigation }) {
                         <Text style={{ fontSize:10 }}>🙂</Text>
                       </View>
                     ))}
-                    <Text style={styles.destCount}>+{dest.count} voyageurs</Text>
+                    <Text style={styles.destCount}>+{dest.count} {t('travelers')}</Text>
                   </View>
                   <View style={[styles.destBadge, { backgroundColor:dest.badgeColor+'20', borderColor:dest.badgeColor+'50' }]}>
                     <Text style={[styles.destBadgeTxt, { color:dest.badgeColor }]}>{dest.badge}</Text>
@@ -127,7 +116,7 @@ export default function MapScreen({ navigation }) {
       )}
 
       <View style={styles.bottomNav}>
-        {[['🏨','Hôtel','Hotel'],['💬','Messages','Messages'],['🌍','Explorer','Map'],['👤','Profil','Profile']].map(([icon, label, screen]) => (
+        {[['🏨',t('hotel'),'Hotel'],['💬',t('messages'),'Messages'],['🌍',t('explorer'),'Map'],['👤',t('profile'),'Profile']].map(([icon, label, screen]) => (
           <TouchableOpacity key={screen} style={styles.navItem} onPress={() => navigation.navigate(screen)}>
             <Text style={styles.navIcon}>{icon}</Text>
             <Text style={[styles.navLabel, screen === 'Map' && { color:'#2AABDC' }]}>{label}</Text>
