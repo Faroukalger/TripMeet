@@ -4,6 +4,7 @@ import {
   TouchableOpacity, ImageBackground
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const MY_HOTEL = {
   name:  'Mercure Toulouse Centre Wilson',
@@ -34,9 +35,10 @@ const NEARBY_HOTELS = [
   },
 ];
 
-const RADIUS_OPTIONS = ['Mon hôtel', '500 m', '1 km', '5 km'];
+const RADIUS_OPTIONS = [t('hotel'), '500 m', '1 km', '5 km'];
 
 export default function HotelScreen({ navigation }) {
+  const { t } = useLanguage();
   const [radius, setRadius] = useState('500 m');
 
   return (
@@ -102,7 +104,7 @@ export default function HotelScreen({ navigation }) {
           <View style={{ paddingHorizontal:13 }}>
             {/* Mon hôtel */}
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>🏨 Dans mon hôtel</Text>
+              <Text style={styles.sectionTitle}>🏨 {t('inMyHotel')}</Text>
               <Text style={styles.sectionCount}>{MY_HOTEL.solos.length} solos</Text>
             </View>
             <HotelBlock hotel={MY_HOTEL} type="here" onPressTraveler={(s) => navigation.navigate('Chat', { conversationId:'demo', otherUser:s })} />
