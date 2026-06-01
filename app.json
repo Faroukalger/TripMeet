@@ -15,7 +15,8 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "package": "com.farouk31.tripmeet"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -23,6 +24,11 @@
     "plugins": [
       "@react-native-community/datetimepicker",
       "expo-localization"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "eb518114-7705-43fe-b7af-6a98cb735c8d"
+      }
+    }
   }
 }

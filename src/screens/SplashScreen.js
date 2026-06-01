@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, ImageBackground, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, ImageBackground, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -14,8 +14,8 @@ export default function SplashScreen({ navigation }) {
             <View style={styles.logoWrap}>
               <LinearGradient colors={['#E8327A','#F07030']} style={styles.logoRing}>
                 <View style={styles.logoInner}>
-                  <Text style={{ fontSize:28 }}>✈️</Text>
-                </View>
+  <Image source={require('../../assets/Logo.png')} style={{ width:56, height:56 }} resizeMode="contain" />
+</View>
               </LinearGradient>
               <Text style={styles.logoTxt}>TripMeet</Text>
             </View>
