@@ -12,11 +12,7 @@ export default function SplashScreen({ navigation }) {
         <LinearGradient colors={['rgba(0,0,0,0.2)','rgba(0,0,0,0.5)','rgba(0,0,0,0.85)']} style={{ flex:1 }}>
           <SafeAreaView style={{ flex:1 }}>
             <View style={styles.logoWrap}>
-              <LinearGradient colors={['#E8327A','#F07030']} style={styles.logoRing}>
-                <View style={styles.logoInner}>
-  <Image source={require('../../assets/Logo.png')} style={{ width:56, height:56 }} resizeMode="contain" />
-</View>
-              </LinearGradient>
+              <Image source={require('../../assets/Logo.png')} style={{ width:140, height:140 }} resizeMode="contain" />
               <Text style={styles.logoTxt}>TripMeet</Text>
             </View>
             <View style={styles.body}>
@@ -43,7 +39,7 @@ export default function SplashScreen({ navigation }) {
 const styles = StyleSheet.create({
   logoWrap: { alignItems:'center', paddingTop:60, gap:10 },
   logoRing: { width:70, height:70, borderRadius:35, alignItems:'center', justifyContent:'center' },
-  logoInner: { width:56, height:56, borderRadius:28, backgroundColor:'#fff', alignItems:'center', justifyContent:'center' },
+  logoInner: { width:56, height:56, borderRadius:28, backgroundColor:'transparent', alignItems:'center', justifyContent:'center' },
   logoTxt: { fontSize:28, fontWeight:'900', color:'#fff', letterSpacing:-0.5 },
   body: { flex:1, alignItems:'center', justifyContent:'flex-end', paddingHorizontal:30, paddingBottom:30 },
   tagline: { fontSize:26, fontWeight:'900', color:'#fff', textAlign:'center', lineHeight:34, marginBottom:12 },

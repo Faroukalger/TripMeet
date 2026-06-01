@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ImageBackground, Image, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLanguage } from '../i18n/LanguageContext';
+import RadarButton from '../components/RadarButton';
 
 const MY_HOTEL = {
   name:'Mercure Toulouse Centre Wilson', stars:4,
@@ -38,22 +39,23 @@ export default function HotelScreen({ navigation }) {
   return (
     <View style={{ flex:1, backgroundColor:'#FDF9F4' }}>
       <SafeAreaView style={{ flex:1 }}>
+
+        {/* Header avec photo 003 */}
         <ImageBackground source={require('../../assets/003.png')} style={styles.headerBg} resizeMode="cover">
           <LinearGradient colors={['rgba(232,50,122,0.80)','rgba(240,112,48,0.80)']} style={styles.headerOverlay}>
             <View style={styles.headerTop}>
               <View style={styles.logoRow}>
-                <View style={styles.logoRing}><Text style={{ fontSize:11 }}>✈️</Text></View>
+                <Image source={require('../../assets/Logo.png')} style={{ width:32, height:32 }} resizeMode="contain" />
                 <Text style={styles.logoTxt}>TripMeet</Text>
               </View>
-              <View style={{ flexDirection:'row', gap:8 }}>
-                <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Nearby')}>
-                  <Text style={{ fontSize:16 }}>📡</Text>
-                </TouchableOpacity>
+              <View style={{ flexDirection:'row', gap:8, alignItems:'center' }}>
+                <RadarButton onPress={() => navigation.navigate('Nearby')} size={32} />
                 <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Notifications')}>
                   <Text style={{ fontSize:16 }}>🔔</Text>
                 </TouchableOpacity>
               </View>
             </View>
+
             <TouchableOpacity style={styles.checkinBar} onPress={() => navigation.navigate('CheckIn')}>
               <Text style={{ fontSize:20 }}>🏨</Text>
               <View style={{ flex:1 }}>
@@ -69,6 +71,7 @@ export default function HotelScreen({ navigation }) {
         </ImageBackground>
 
         <ScrollView style={{ flex:1 }} showsVerticalScrollIndicator={false}>
+          {/* Rayon */}
           <View style={styles.radiusRow}>
             <Text style={styles.radiusLbl}>📍 {t('searchRadius')}</Text>
             <View style={styles.radiusBtns}>
@@ -101,6 +104,7 @@ export default function HotelScreen({ navigation }) {
             <View style={{ height:80 }} />
           </View>
         </ScrollView>
+
         <BottomNav navigation={navigation} active="hotel" t={t} />
       </SafeAreaView>
     </View>
@@ -165,10 +169,10 @@ function TravelerCard({ traveler, onPress }) {
 
 function BottomNav({ navigation, active, t }) {
   const tabs = [
-    { key:'hotel',   icon:'🏨', label: t('hotel'),    screen:'Hotel'    },
-    { key:'chat',    icon:'💬', label: t('messages'),  screen:'Messages' },
-    { key:'map',     icon:'🌍', label: t('explorer'),  screen:'Map'      },
-    { key:'profile', icon:'👤', label: t('profile'),   screen:'Profile'  },
+    { key:'hotel',   icon:'🏨', label:t('hotel'),    screen:'Hotel'    },
+    { key:'chat',    icon:'💬', label:t('messages'),  screen:'Messages' },
+    { key:'map',     icon:'🌍', label:t('explorer'),  screen:'Map'      },
+    { key:'profile', icon:'👤', label:t('profile'),   screen:'Profile'  },
   ];
   return (
     <View style={styles.bottomNav}>
@@ -188,7 +192,6 @@ const styles = StyleSheet.create({
   headerOverlay: { paddingHorizontal:16, paddingTop:52, paddingBottom:14 },
   headerTop: { flexDirection:'row', alignItems:'center', justifyContent:'space-between', marginBottom:10 },
   logoRow: { flexDirection:'row', alignItems:'center', gap:7 },
-  logoRing: { width:26, height:26, borderRadius:13, backgroundColor:'rgba(255,255,255,0.3)', alignItems:'center', justifyContent:'center' },
   logoTxt: { color:'#fff', fontSize:17, fontWeight:'900' },
   iconBtn: { width:32, height:32, borderRadius:16, backgroundColor:'rgba(255,255,255,0.2)', alignItems:'center', justifyContent:'center' },
   checkinBar: { backgroundColor:'rgba(255,255,255,0.95)', borderRadius:14, padding:10, flexDirection:'row', alignItems:'center', gap:10 },
