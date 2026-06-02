@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "TripMeet2",
-    "slug": "TripMeet2",
+    "name": "TripMeet",
+    "slug": "TripMeet",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
