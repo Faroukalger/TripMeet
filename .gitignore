@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Scripts temporaires
+ajouter_avatars.sh
+appliquer_modifs.sh

@@ -50,6 +50,10 @@ export default function RegisterScreen({ navigation }) {
 
   const [showPicker, setShowPicker]   = useState(false);
   const [pickerField, setPickerField] = useState(null);
+  const [pickerDay, setPickerDay]     = useState(1);
+  const [pickerMonth, setPickerMonth] = useState(0); // 0 = Janvier
+  const [pickerYear, setPickerYear]   = useState(2000);
+  const [pickerError, setPickerError] = useState('');
 
   const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
 
@@ -63,6 +67,14 @@ export default function RegisterScreen({ navigation }) {
   };
 
   const openPicker = (field) => {
+    setPickerError('');
+    const existing = form[field];
+    const base = existing instanceof Date ? existing
+      : field === 'dateNaissance' ? new Date(2000, 0, 1)
+      : new Date();
+    setPickerDay(base.getDate());
+    setPickerMonth(base.getMonth());
+    setPickerYear(base.getFullYear());
     setPickerField(field);
     setShowPicker(true);
   };
@@ -83,7 +95,7 @@ export default function RegisterScreen({ navigation }) {
         password: form.password,
         options: {
           data: { prenom: form.prenom, nom: form.nom },
-          emailRedirectTo: 'https://tripmeet.app/bienvenue',
+          emailRedirectTo: 'tripmeet://',
         }
       });
 
@@ -129,6 +141,33 @@ export default function RegisterScreen({ navigation }) {
   };
 
   const progress = (step / STEPS.length) * 100;
+
+  // --- Sélecteur de date custom (compatible web ET mobile natif) ---
+  const _now = new Date();
+  const _isBirth = pickerField === 'dateNaissance';
+  const pickerYears = _isBirth
+    ? Array.from({ length: 83 }, (_, i) => _now.getFullYear() - 18 - i) // de 18 à 100 ans
+    : Array.from({ length: 3 },  (_, i) => _now.getFullYear() + i);     // année en cours + 2
+  const pickerMonths = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  const pickerDaysInMonth = new Date(pickerYear, pickerMonth + 1, 0).getDate();
+  const pickerDays = Array.from({ length: pickerDaysInMonth }, (_, i) => i + 1);
+  const pickerSafeDay = Math.min(pickerDay, pickerDaysInMonth);
+
+  const confirmPicker = () => {
+    const d = Math.min(pickerDay, pickerDaysInMonth);
+    const chosen = new Date(pickerYear, pickerMonth, d);
+    if (_isBirth) {
+      let age = _now.getFullYear() - chosen.getFullYear();
+      const m = _now.getMonth() - chosen.getMonth();
+      if (m < 0 || (m === 0 && _now.getDate() < chosen.getDate())) age--;
+      if (age < 18) {
+        setPickerError('Tu dois avoir au moins 18 ans pour utiliser TripMeet.');
+        return;
+      }
+    }
+    update(pickerField, chosen);
+    setShowPicker(false);
+  };
 
   const DateField = ({ label, field, placeholder }) => (
     <View>
@@ -347,7 +386,7 @@ export default function RegisterScreen({ navigation }) {
               <View style={styles.modalCard}>
                 <View style={styles.modalHeader}>
                   <Text style={styles.modalTitle}>
-                    {pickerField === 'dateNaissance' ? '🎂 Date de naissance'
+                    {_isBirth ? '🎂 Date de naissance'
                       : pickerField === 'checkin' ? '✈️ Date d\'arrivée'
                       : '🏠 Date de départ'}
                   </Text>
@@ -355,14 +394,37 @@ export default function RegisterScreen({ navigation }) {
                     <Text style={{ fontSize:20, color:'#5E9DB8' }}>✕</Text>
                   </TouchableOpacity>
                 </View>
-                <input
-                  type="date"
-                  style={{ width:'100%', padding:14, fontSize:16, borderRadius:12, border:'1.5px solid #B5DCEA', color:'#0D3547', backgroundColor:'#fff', fontFamily:'inherit', marginBottom:16 }}
-                  onChange={(e) => {
-                    if (e.target.value) update(pickerField, new Date(e.target.value));
-                  }}
-                />
-                <TouchableOpacity onPress={() => setShowPicker(false)}>
+
+                <View style={styles.pickerRow}>
+                  {/* Jour */}
+                  <ScrollView style={styles.pickerCol} showsVerticalScrollIndicator={false}>
+                    {pickerDays.map(d => (
+                      <TouchableOpacity key={d} style={[styles.pickerItem, pickerSafeDay === d && styles.pickerItemActive]} onPress={() => setPickerDay(d)}>
+                        <Text style={[styles.pickerItemTxt, pickerSafeDay === d && styles.pickerItemTxtActive]}>{d}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                  {/* Mois */}
+                  <ScrollView style={[styles.pickerCol, styles.pickerColMonth]} showsVerticalScrollIndicator={false}>
+                    {pickerMonths.map((m, i) => (
+                      <TouchableOpacity key={m} style={[styles.pickerItem, pickerMonth === i && styles.pickerItemActive]} onPress={() => setPickerMonth(i)}>
+                        <Text style={[styles.pickerItemTxt, pickerMonth === i && styles.pickerItemTxtActive]}>{m}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                  {/* Année */}
+                  <ScrollView style={styles.pickerCol} showsVerticalScrollIndicator={false}>
+                    {pickerYears.map(y => (
+                      <TouchableOpacity key={y} style={[styles.pickerItem, pickerYear === y && styles.pickerItemActive]} onPress={() => setPickerYear(y)}>
+                        <Text style={[styles.pickerItemTxt, pickerYear === y && styles.pickerItemTxtActive]}>{y}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+
+                {pickerError ? <Text style={styles.pickerError}>{pickerError}</Text> : null}
+
+                <TouchableOpacity onPress={confirmPicker}>
                   <LinearGradient colors={['#E8327A','#F07030']} style={styles.confirmBtn}>
                     <Text style={styles.confirmBtnTxt}>✓ Confirmer la date</Text>
                   </LinearGradient>
@@ -441,4 +503,12 @@ const styles = StyleSheet.create({
   modalTitle: { fontSize:16, fontWeight:'900', color:'#0D3547' },
   confirmBtn: { borderRadius:26, paddingVertical:14, alignItems:'center', marginTop:8 },
   confirmBtnTxt: { color:'#fff', fontSize:14, fontWeight:'900' },
+  pickerRow: { flexDirection:'row', gap:8, height:210, marginBottom:8 },
+  pickerCol: { flex:1, borderWidth:1.5, borderColor:'#B5DCEA', borderRadius:12, backgroundColor:'#fff' },
+  pickerColMonth: { flex:1.6 },
+  pickerItem: { paddingVertical:11, paddingHorizontal:4, alignItems:'center' },
+  pickerItemActive: { backgroundColor:'#2AABDC' },
+  pickerItemTxt: { fontSize:14, color:'#0D3547', fontWeight:'600' },
+  pickerItemTxtActive: { color:'#fff', fontWeight:'900' },
+  pickerError: { fontSize:12, color:'#E8327A', fontWeight:'700', textAlign:'center', marginBottom:10 },
 });

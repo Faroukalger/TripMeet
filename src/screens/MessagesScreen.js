@@ -37,6 +37,16 @@ export default function MessagesScreen({ navigation }) {
         </LinearGradient>
       </ImageBackground>
 
+      <View style={styles.bottomNav}>
+        {[['🏨',t('hotel'),'Hotel'],['💬',t('messages'),'Messages'],['🌍',t('explorer'),'Map'],['👤',t('profile'),'Profile']].map(([icon, label, screen]) => (
+          <TouchableOpacity key={screen} style={styles.navItem} onPress={() => navigation.navigate(screen)}>
+            <Text style={styles.navIcon}>{icon}</Text>
+            <Text style={[styles.navLabel, screen === 'Messages' && { color:'#2AABDC' }]}>{label}</Text>
+            {screen === 'Messages' && <View style={styles.navDot} />}
+          </TouchableOpacity>
+        ))}
+      </View>
+
       <ScrollView style={{ flex:1 }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingHorizontal:14, paddingVertical:12 }}>
           <View style={{ flexDirection:'row', gap:12 }}>
@@ -75,16 +85,6 @@ export default function MessagesScreen({ navigation }) {
           </TouchableOpacity>
         ))}
       </ScrollView>
-
-      <View style={styles.bottomNav}>
-        {[['🏨',t('hotel'),'Hotel'],['💬',t('messages'),'Messages'],['🌍',t('explorer'),'Map'],['👤',t('profile'),'Profile']].map(([icon, label, screen]) => (
-          <TouchableOpacity key={screen} style={styles.navItem} onPress={() => navigation.navigate(screen)}>
-            <Text style={styles.navIcon}>{icon}</Text>
-            <Text style={[styles.navLabel, screen === 'Messages' && { color:'#2AABDC' }]}>{label}</Text>
-            {screen === 'Messages' && <View style={styles.navDot} />}
-          </TouchableOpacity>
-        ))}
-      </View>
     </SafeAreaView>
   );
 }
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   convMsg: { fontSize:11, color:'#5E9DB8', marginTop:2 },
   convTime: { fontSize:10, color:'#ccc' },
   unreadDot: { width:9, height:9, borderRadius:5, backgroundColor:'#E8327A' },
-  bottomNav: { flexDirection:'row', justifyContent:'space-around', alignItems:'center', paddingVertical:10, borderTopWidth:1, borderTopColor:'#B5DCEA', backgroundColor:'#fff' },
+  bottomNav: { flexDirection:'row', justifyContent:'space-around', alignItems:'center', paddingVertical:10, borderBottomWidth:1, borderBottomColor:'#B5DCEA', backgroundColor:'#fff' },
   navItem: { alignItems:'center', gap:2 },
   navIcon: { fontSize:20 },
   navLabel: { fontSize:10, fontWeight:'700', color:'#ccc' },

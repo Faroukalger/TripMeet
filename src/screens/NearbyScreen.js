@@ -1,11 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView, ScrollView,
-  TouchableOpacity, ActivityIndicator, Linking
+  TouchableOpacity, ActivityIndicator, Linking, Image
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import { useLanguage } from '../i18n/LanguageContext';
+
+// Vraies photos des voyageurs (avatars)
+const AVATARS = [
+  require('../../assets/F001.jpg'),
+  require('../../assets/H001.jpg'),
+  require('../../assets/F002.jpg'),
+  require('../../assets/H002.jpg'),
+  require('../../assets/F003.jpg'),
+  require('../../assets/H003.jpg'),
+  require('../../assets/F004.jpg'),
+  require('../../assets/F005.jpg'),
+  require('../../assets/F006.jpg'),
+];
 
 const MOCK_HOTELS = [
   { id:1, name:'Mercure Toulouse Centre Wilson', stars:4, lat:43.6047, lng:1.4442, solos:4,  realDist:0,   here:true  },
@@ -78,6 +91,15 @@ export default function NearbyScreen({ navigation }) {
         <View style={styles.headerWave} />
       </LinearGradient>
 
+      <View style={styles.bottomNav}>
+        {[['🏨',t('hotel'),'Hotel'],['💬',t('messages'),'Messages'],['🌍',t('explorer'),'Map'],['👤',t('profile'),'Profile']].map(([icon, label, screen]) => (
+          <TouchableOpacity key={screen} style={styles.navItem} onPress={() => navigation.navigate(screen)}>
+            <Text style={styles.navIcon}>{icon}</Text>
+            <Text style={styles.navLabel}>{label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
       <View style={styles.radiusRow}>
         <Text style={styles.radiusLbl}>{t('searchRadius')}</Text>
         <View style={styles.radiusBtns}>
@@ -118,7 +140,7 @@ export default function NearbyScreen({ navigation }) {
           <Text style={{ color:'#5E9DB8', fontWeight:'600' }}>Recherche en cours...</Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={{ padding:13, paddingBottom:80 }}>
+        <ScrollView contentContainerStyle={{ padding:13, paddingBottom:24 }}>
           {error ? (
             <View style={styles.errorBanner}>
               <Text style={styles.errorTxt}>⚠️ {error}</Text>
@@ -156,8 +178,8 @@ export default function NearbyScreen({ navigation }) {
                 <View style={styles.solosRow}>
                   <View style={styles.solosAvatars}>
                     {Array(Math.min(hotel.solos, 4)).fill(0).map((_, i) => (
-                      <View key={i} style={[styles.soloAv, { backgroundColor: ['#FFD4E8','#D4EEF7','#D4FFD4','#FFE4D4'][i], marginLeft: i > 0 ? -8 : 0 }]}>
-                        <Text style={{ fontSize:12 }}>🙂</Text>
+                      <View key={i} style={[styles.soloAv, { marginLeft: i > 0 ? -8 : 0 }]}>
+                        <Image source={AVATARS[(hotel.id * 3 + i) % AVATARS.length]} style={styles.soloAvImg} />
                       </View>
                     ))}
                   </View>
@@ -179,15 +201,6 @@ export default function NearbyScreen({ navigation }) {
           )}
         </ScrollView>
       )}
-
-      <View style={styles.bottomNav}>
-        {[['🏨',t('hotel'),'Hotel'],['💬',t('messages'),'Messages'],['🌍',t('explorer'),'Map'],['👤',t('profile'),'Profile']].map(([icon, label, screen]) => (
-          <TouchableOpacity key={screen} style={styles.navItem} onPress={() => navigation.navigate(screen)}>
-            <Text style={styles.navIcon}>{icon}</Text>
-            <Text style={styles.navLabel}>{label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
     </SafeAreaView>
   );
 }
@@ -230,14 +243,15 @@ const styles = StyleSheet.create({
   distBadgeBlueTxt: { fontSize:9, fontWeight:'800', color:'#1A8BB8' },
   solosRow: { flexDirection:'row', alignItems:'center', gap:10, marginBottom:10 },
   solosAvatars: { flexDirection:'row' },
-  soloAv: { width:28, height:28, borderRadius:14, borderWidth:2, borderColor:'#fff', alignItems:'center', justifyContent:'center' },
+  soloAv: { width:28, height:28, borderRadius:14, borderWidth:2, borderColor:'#fff', alignItems:'center', justifyContent:'center', overflow:'hidden', backgroundColor:'#EEE' },
+  soloAvImg: { width:'100%', height:'100%', borderRadius:14 },
   solosCount: { fontSize:11, color:'#5E9DB8', fontWeight:'600' },
   hotelActions: { flexDirection:'row', gap:8 },
   mapBtn: { flex:1, borderWidth:1.5, borderColor:'#B5DCEA', borderRadius:20, paddingVertical:8, alignItems:'center', backgroundColor:'#fff' },
   mapBtnTxt: { fontSize:11, fontWeight:'700', color:'#5E9DB8' },
   solosBtn: { borderRadius:20, paddingVertical:8, paddingHorizontal:14 },
   solosBtnTxt: { fontSize:11, fontWeight:'800', color:'#fff' },
-  bottomNav: { flexDirection:'row', justifyContent:'space-around', alignItems:'center', paddingVertical:10, borderTopWidth:1, borderTopColor:'#B5DCEA', backgroundColor:'#fff', position:'absolute', bottom:0, left:0, right:0 },
+  bottomNav: { flexDirection:'row', justifyContent:'space-around', alignItems:'center', paddingVertical:10, borderBottomWidth:1, borderBottomColor:'#B5DCEA', backgroundColor:'#fff' },
   navItem: { alignItems:'center', gap:2 },
   navIcon: { fontSize:20 },
   navLabel: { fontSize:10, fontWeight:'700', color:'#ccc' },

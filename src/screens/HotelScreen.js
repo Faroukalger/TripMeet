@@ -70,6 +70,8 @@ export default function HotelScreen({ navigation }) {
           </LinearGradient>
         </ImageBackground>
 
+        <BottomNav navigation={navigation} active="hotel" t={t} />
+
         <ScrollView style={{ flex:1 }} showsVerticalScrollIndicator={false}>
           {/* Rayon */}
           <View style={styles.radiusRow}>
@@ -104,8 +106,6 @@ export default function HotelScreen({ navigation }) {
             <View style={{ height:80 }} />
           </View>
         </ScrollView>
-
-        <BottomNav navigation={navigation} active="hotel" t={t} />
       </SafeAreaView>
     </View>
   );
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
   tcardOnline: { position:'absolute', bottom:0, right:0, width:11, height:11, borderRadius:6, backgroundColor:'#2ECC71', borderWidth:2, borderColor:'#fff' },
   tcardName: { fontSize:9, fontWeight:'800', color:'#0D3547' },
   tcardCompat: { fontSize:8, fontWeight:'700', color:'#5E9DB8' },
-  bottomNav: { flexDirection:'row', justifyContent:'space-around', alignItems:'center', paddingVertical:10, borderTopWidth:1, borderTopColor:'#B5DCEA', backgroundColor:'#fff' },
+  bottomNav: { flexDirection:'row', justifyContent:'space-around', alignItems:'center', paddingVertical:10, borderBottomWidth:1, borderBottomColor:'#B5DCEA', backgroundColor:'#fff' },
   navItem: { alignItems:'center', gap:2 },
   navIcon: { fontSize:20 },
   navLabel: { fontSize:10, fontWeight:'700', color:'#ccc' },

@@ -39,6 +39,16 @@ export default function MapScreen({ navigation }) {
         </LinearGradient>
       </ImageBackground>
 
+      <View style={styles.bottomNav}>
+        {[['🏨',t('hotel'),'Hotel'],['💬',t('messages'),'Messages'],['🌍',t('explorer'),'Map'],['👤',t('profile'),'Profile']].map(([icon, label, screen]) => (
+          <TouchableOpacity key={screen} style={styles.navItem} onPress={() => navigation.navigate(screen)}>
+            <Text style={styles.navIcon}>{icon}</Text>
+            <Text style={[styles.navLabel, screen === 'Map' && { color:'#2AABDC' }]}>{label}</Text>
+            {screen === 'Map' && <View style={styles.navDot} />}
+          </TouchableOpacity>
+        ))}
+      </View>
+
       <View style={styles.tabs}>
         {TABS.map((tab, i) => (
           <TouchableOpacity key={i} style={[styles.tab, activeTab === i && styles.tabActive]} onPress={() => setActiveTab(i)}>
@@ -114,16 +124,6 @@ export default function MapScreen({ navigation }) {
           ))}
         </ScrollView>
       )}
-
-      <View style={styles.bottomNav}>
-        {[['🏨',t('hotel'),'Hotel'],['💬',t('messages'),'Messages'],['🌍',t('explorer'),'Map'],['👤',t('profile'),'Profile']].map(([icon, label, screen]) => (
-          <TouchableOpacity key={screen} style={styles.navItem} onPress={() => navigation.navigate(screen)}>
-            <Text style={styles.navIcon}>{icon}</Text>
-            <Text style={[styles.navLabel, screen === 'Map' && { color:'#2AABDC' }]}>{label}</Text>
-            {screen === 'Map' && <View style={styles.navDot} />}
-          </TouchableOpacity>
-        ))}
-      </View>
     </SafeAreaView>
   );
 }
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   destBadgeTxt: { fontSize:9, fontWeight:'800' },
   exploreBtn: { borderRadius:20, paddingVertical:9, alignItems:'center', marginTop:8, marginBottom:10, marginRight:12 },
   exploreBtnTxt: { color:'#fff', fontWeight:'800', fontSize:12 },
-  bottomNav: { flexDirection:'row', justifyContent:'space-around', alignItems:'center', paddingVertical:10, borderTopWidth:1, borderTopColor:'#B5DCEA', backgroundColor:'#fff', position:'absolute', bottom:0, left:0, right:0 },
+  bottomNav: { flexDirection:'row', justifyContent:'space-around', alignItems:'center', paddingVertical:10, borderBottomWidth:1, borderBottomColor:'#B5DCEA', backgroundColor:'#fff' },
   navItem: { alignItems:'center', gap:2 },
   navIcon: { fontSize:20 },
   navLabel: { fontSize:10, fontWeight:'700', color:'#ccc' },
